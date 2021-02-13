@@ -1,0 +1,65 @@
+name: Build gopass-jsonapi
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.x
+
+    - name: Ubuntu Dependencies
+      run: sudo apt-get install --yes git gnupg2
+
+    - run: git config --global user.name nobody
+    - run: git config --global user.email foo.bar@example.org
+
+    -
+      name: Debug
+      run:  |
+        echo "Go env ------------------"
+        pwd
+        echo ${HOME}
+        echo ${GITHUB_WORKSPACE}
+        echo ${GOPATH}
+        echo ${GOROOT}
+        env
+      
+    - name: Build and Unit Test
+      run: make travis
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.x
+
+    - name: MacOS Dependencies
+      run: brew install git gnupg
+
+    - run: git config --global user.name nobody
+    - run: git config --global user.email foo.bar@example.org
+      
+    - name: Build and Unit Test
+      run: make travis-osx
+      env:
+        SLOW_TEST_FACTOR: 100 
+
