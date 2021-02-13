@@ -1,8 +1,21 @@
 # JSON API
 
-Note: The gopass JSON API has been moved to it's own binary. See `cmd/gopass-jsonapi`.
+Note: The gopass JSON API has been moved to its own binary and separate repository.
 
-## Overview
+This is still work-in-progress and no regular release process has been defined.
+You might encounter outdated or incomplete documentation across different gopasspw repositories.
+
+## Installation
+
+You may need to manually download the `gopass-jsonapi` binary from GitHub, until it is available in popular package managers.
+
+Alternatively you can compile it yourself if you have Go 1.14 (or greater) installed:
+
+```bash
+go get github.com/gopasspw/gopass-jsonapi
+```
+
+## API Overview
 
 The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
 Each JSON-UTF8 encoded message is prefixed with a 32-bit integer specifying the length of the message.
