@@ -1,6 +1,5 @@
 FIRST_GOPATH              := $(firstword $(subst :, ,$(GOPATH)))
 PKGS                      := $(shell go list ./... | grep -v /tests | grep -v /xcpb | grep -v /gpb)
-PKGSWIN                   := $(shell go list ./... | grep -v /tests | grep -v /xcpb | grep -v /gpb | grep -v "jsonapi")
 GOFILES_NOVENDOR          := $(shell find . -name vendor -prune -o -type f -name '*.go' -not -name '*.pb.go' -print)
 GOFILES_BUILD             := $(shell find . -type f -name '*.go' -not -name '*_test.go')
 PROTOFILES                := $(shell find . -name vendor -prune -o -type f -name '*.proto' -print)
@@ -25,7 +24,7 @@ OK := $(shell tput setaf 6; echo ' [OK]'; tput sgr0;)
 
 all: build
 build: $(GOPASS_OUTPUT)
-travis: sysinfo crosscompile build install test codequality
+travis: sysinfo crosscompile build test codequality
 
 sysinfo:
 	@echo ">> SYSTEM INFORMATION"

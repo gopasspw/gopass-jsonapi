@@ -59,7 +59,7 @@ jobs:
     - run: git config --global user.email foo.bar@example.org
       
     - name: Build and Unit Test
-      run: make travis-osx
+      run: make travis
       env:
         SLOW_TEST_FACTOR: 100 
 
