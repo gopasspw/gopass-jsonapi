@@ -1,6 +1,5 @@
 FIRST_GOPATH              := $(firstword $(subst :, ,$(GOPATH)))
 PKGS                      := $(shell go list ./... | grep -v /tests | grep -v /xcpb | grep -v /gpb)
-PKGSWIN                   := $(shell go list ./... | grep -v /tests | grep -v /xcpb | grep -v /gpb | grep -v "jsonapi")
 GOFILES_NOVENDOR          := $(shell find . -name vendor -prune -o -type f -name '*.go' -not -name '*.pb.go' -print)
 GOFILES_BUILD             := $(shell find . -type f -name '*.go' -not -name '*_test.go')
 PROTOFILES                := $(shell find . -name vendor -prune -o -type f -name '*.proto' -print)
@@ -25,7 +24,7 @@ OK := $(shell tput setaf 6; echo ' [OK]'; tput sgr0;)
 
 all: build
 build: $(GOPASS_OUTPUT)
-travis: sysinfo crosscompile build install test codequality
+travis: sysinfo crosscompile build test codequality
 
 sysinfo:
 	@echo ">> SYSTEM INFORMATION"
@@ -70,7 +69,7 @@ $(GOPASS_OUTPUT): $(GOFILES_BUILD)
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
-install: all install-completion
+install: all
 	@echo -n ">> INSTALL, version = $(GOPASS_VERSION)"
 	@install -m 0755 -d $(DESTDIR)$(BINDIR)
 	@install -m 0755 $(GOPASS_OUTPUT) $(DESTDIR)$(BINDIR)/$(GOPASS_OUTPUT)
@@ -177,4 +176,4 @@ fmt:
 	fi
 	@go mod tidy
 
-.PHONY: clean build completion install sysinfo crosscompile test codequality release goreleaser debsign
+.PHONY: clean build completion install sysinfo crosscompile test codequality
