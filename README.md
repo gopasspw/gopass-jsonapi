@@ -15,6 +15,12 @@ Alternatively you can compile it yourself if you have Go 1.14 (or greater) insta
 go get github.com/gopasspw/gopass-jsonapi
 ```
 
+## Contributing
+
+Thank you very much for supporting gopass.
+
+Please follow the [gopass contribution guidelines and Pull Request checklist](https://github.com/gopasspw/gopass/blob/master/CONTRIBUTING.md#pull-request-checklist).
+
 ## API Overview
 
 The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
