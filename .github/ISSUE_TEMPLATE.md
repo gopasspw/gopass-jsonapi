@@ -25,7 +25,7 @@ Please complete the following information (see note below)
 
 - OS: [e.g. Mac OS X High Sierra, Ubuntu 18.04, Windows 10, ...]
 - OS version: [uname -a]
-- gopass-jsonapi Version: [gopass-jsonapi version]
+- gopass-jsonapi Version: [gopass-jsonapi --version]
 - Installation method: [e.g. compiled from source, brew, GitHub releases]
 
 ### Additional context

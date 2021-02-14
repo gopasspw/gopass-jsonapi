@@ -1,13 +1,24 @@
 # JSON API
 
-Note: The gopass JSON API has been moved to its own binary and separate repository.
+`gopass-jsonapi` enables communication with gopass via JSON messages.
+
+This is particularly useful for browser plugins like [gopassbridge](https://github.com/gopasspw/gopassbridge) running gopass as native app.
+More details can be found in [api.md](./docs/api.md).
+
+## Project status
 
 This is still work-in-progress and no regular release process has been defined.
-You might encounter outdated or incomplete documentation across different gopasspw repositories.
+You might encounter outdated or incomplete documentation across different repositories and gopass versions.
 
 ## Installation
 
-You may need to manually download the `gopass-jsonapi` binary from GitHub, until it is available in popular package managers.
+**gopass v1.10 / v1.11**:
+The binary for v1.10 and v1.11 can be downloaded and unpacked from
+[archive files on Github Releases](https://github.com/gopasspw/gopass/releases/tag/v1.11.0).
+
+**gopass v1.12 or newer**:
+You need to manually download the `gopass-jsonapi` binary from [GitHub Releases](https://github.com/gopasspw/gopass-jsonapi/releases),
+until it is available in popular package managers.
 
 Alternatively you can compile it yourself if you have Go 1.14 (or greater) installed:
 
@@ -15,118 +26,65 @@ Alternatively you can compile it yourself if you have Go 1.14 (or greater) insta
 go get github.com/gopasspw/gopass-jsonapi
 ```
 
+You need to run `gopass-jsonapi configure` for each browser you want to use with `gopass`.
+
+**Windows**:
+The jsonapi setup copies the current gopass-jsonapi binary as a wrapper executable file (`gopass_native_host.exe` calls the listener directly).
+It is recommended to run `gopass-jsonapi configure` after each **update** to have the latest version setup for your browser.
+The **global** setup requires to run `gopass-jsonapi configure` as Administrator.
+
+## Usage
+
+Gopass allows filling in passwords in browsers leveraging a browser plugin like [gopassbridge](https://github.com/gopasspw/gopassbridge).
+The browser plugin communicates with gopass-jsonapi via JSON messages.
+To allow the plugin to interact with gopass-jsonapi,
+a [native messaging manifest](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) must be installed for each browser.
+
+You need to run `gopass-jsonapi configure` to configure your browser for `gopass-jsonapi`.
+
+```bash
+# Asks all questions concerning browser and setup
+gopass-jsonapi configure
+
+# Do not copy / install any files, just print their location and content
+gopass-jsonapi configure --print
+
+# Specify browser and wrapper path
+gopass-jsonapi configure --browser chrome --path /home/user/.local/
+```
+
+## How user name is determined
+
+The user name/login is determined from `login`, `username` and `user` yaml attributes (after the --- separator) like this:
+
+```
+<your password>
+---
+username: <your username>
+```
+
+As fallback, the last part of the path is used, e.g. `theuser1` for `Internet/github.com/theuser1` entry.
+
+## Supported Browsers
+
+### Linux / macOS:
+
+- Firefox
+- Chrome
+- Chromium
+- Brave
+- Vivaldi
+- Iridium
+- Slimjet
+
+### Windows
+
+- Firefox
+- Chrome
+- Chromium
+
 ## Contributing
 
-Thank you very much for supporting gopass.
+Thank you very much for supporting gopass. Pull requests are welcome.
 
 Please follow the [gopass contribution guidelines and Pull Request checklist](https://github.com/gopasspw/gopass/blob/master/CONTRIBUTING.md#pull-request-checklist).
-
-## API Overview
-
-The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
-Each JSON-UTF8 encoded message is prefixed with a 32-bit integer specifying the length of the message.
-Communication is performed via stdin/stdout.
-
-**WARNING**: This API **MUST NOT** be exposed over the network to remote hosts.
-**No authentication is performed** and the only safe way is to communicate via stdin/stdout as you do in your terminal.
-
-The implementation is located in `utils/jsonapi`.
-
-## Request Types
-
-### `query`
-
-#### Query:
-
-```json
-{
-  "type": "query",
-  "query": "secret"
-}
-```
-
-#### Response:
-
-```json
-[
-    "somewhere/mysecret/loginname",
-    "somewhere/else/secretsauce"
-]
-```
-
-### `queryHost`
-
-Similar to `query` but cuts hostnames and subdomains from the left side until the response to the query is non-empty. Stops if only the [public suffix](https://publicsuffix.org/) is remaining.
-
-#### Query:
-
-```json
-{
-  "type": "queryHost",
-  "host": "some.domain.example.com"
-}
-```
-
-#### Response:
-
-```json
-[
-    "somewhere/domain.example.com/loginname",
-    "somewhere/other.domain.example.com"
-]
-```
-
-### `getLogin`
-
-#### Query:
-
-```json
-{
-   "type": "getLogin",
-   "entry": "somewhere/else/secretsauce"
-}
-```
-
-#### Response:
-
-```json
-{
-   "username": "hugo",
-   "password": "thepassword"
-}
-```
-
-### `create`
-
-#### Query:
-
-```json
-{
-   "type": "create",
-   "login": "myusername",
-   "password": "",
-   "length": 12,
-   "generate": true,
-   "use_symbols": true
-}
-```
-
-#### Response:
-
-```json
-{
-   "username": "myusername",
-   "password": "5^dX9j1\"b5^q"
-}
-```
-
-## Error Response
-
-If an uncaught error occurs, the stringified error message is send back as the response:
-
-```json
-{
-  "error": "Some error occurred with fancy message"
-}
-```
-Gopass Browser Bindings
