@@ -82,6 +82,7 @@ As fallback, the last part of the path is used, e.g. `theuser1` for `Internet/gi
 - Firefox
 - Chrome
 - Chromium
+- Brave
 
 ## Contributing
 
