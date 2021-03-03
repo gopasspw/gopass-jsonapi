@@ -23,7 +23,10 @@ until it is available in popular package managers.
 Alternatively you can compile it yourself if you have Go 1.14 (or greater) installed:
 
 ```bash
-go get github.com/gopasspw/gopass-jsonapi
+git clone https://github.com/gopasspw/gopass-jsonapi.git
+cd gopass-jsonapi
+make build
+./gopass-jsonapi help
 ```
 
 You need to run `gopass-jsonapi configure` for each browser you want to use with `gopass`.
