@@ -104,4 +104,3 @@ If an uncaught error occurs, the stringified error message is send back as the r
   "error": "Some error occurred with fancy message"
 }
 ```
-Gopass Browser Bindings
