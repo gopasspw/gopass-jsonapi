@@ -235,7 +235,7 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 		return fmt.Errorf("entry not found")
 	}
 
-	if err := clipboard.CopyTo(ctx, message.Entry, []byte(val)); err != nil {
+	if err := clipboard.CopyTo(ctx, message.Entry, []byte(val), 30); err != nil {
 		return errors.Wrapf(err, "failed to copy to clipboard")
 	}
 
