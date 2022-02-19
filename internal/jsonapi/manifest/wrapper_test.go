@@ -22,6 +22,8 @@ else
 	eval $(gpg-agent --daemon)
 fi
 
+export PATH="$PATH:/usr/local/bin"
+
 gopass-jsonapi listen
 
 exit $?
