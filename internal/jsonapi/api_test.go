@@ -26,6 +26,8 @@ type storedSecret struct {
 }
 
 func TestRespondMessageBrokenInput(t *testing.T) {
+	t.Parallel()
+
 	// Garbage input
 	runRespondRawMessage(t, "1234Xabcd", "", "incomplete message read", []storedSecret{})
 
@@ -40,6 +42,8 @@ func TestRespondMessageBrokenInput(t *testing.T) {
 }
 
 func TestRespondGetVersion(t *testing.T) {
+	t.Parallel()
+
 	runRespondMessage(t,
 		`{"type": "getVersion"}`,
 		`{"version":"1.2.3-test","major":1,"minor":2,"patch":3}`,
@@ -48,13 +52,18 @@ func TestRespondGetVersion(t *testing.T) {
 }
 
 func newSec(t *testing.T, in string) gopass.Secret {
+	t.Helper()
+
 	debug.Log("in: %s", in)
 	sec, err := secparse.Parse([]byte(in))
 	require.NoError(t, err)
+
 	return sec
 }
 
 func TestRespondMessageQuery(t *testing.T) {
+	t.Parallel()
+
 	secrets := []storedSecret{
 		{[]string{"awesomePrefix", "foo", "bar"}, newSec(t, "20\n")},
 		{[]string{"awesomePrefix", "fixed", "secret"}, newSec(t, "moar\n")},
@@ -143,14 +152,18 @@ login_fields: "invalid"`)},
 			out:  `{"username":"thelogin","password":"thepass"}`,
 		},
 	} {
+		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
+			t.Parallel()
+
 			runRespondMessage(t, tc.in, tc.out, "", secrets)
 		})
 	}
-
 }
 
 func TestRespondMessageGetData(t *testing.T) {
+	t.Parallel()
+
 	totpSuffix := "//totp/github-fake-account?secret=rpna55555qyho42j"
 	totpURL := "otpauth:" + totpSuffix
 	totpSecret := newSec(t, "totp_are_cool\n"+totpURL)
@@ -195,9 +208,7 @@ sub:
 }
 
 func TestRespondMessageCreate(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test in short mode.")
-	}
+	t.Parallel()
 
 	runRespondMessages(t, nil, nil)
 
@@ -258,6 +269,8 @@ func TestRespondMessageCreate(t *testing.T) {
 }
 
 func TestCopyToClipboard(t *testing.T) {
+	t.Parallel()
+
 	secrets := []storedSecret{
 		{[]string{"foo", "bar"}, newSec(t, "20\n")},
 		{[]string{"yamllogin"}, newSec(t, "thesecret\n---\nlogin: muh")},
@@ -296,15 +309,18 @@ func writeMessageWithLength(message string) string {
 	buffer := bytes.NewBuffer([]byte{})
 	_ = binary.Write(buffer, binary.LittleEndian, uint32(len(message)))
 	_, _ = buffer.WriteString(message)
+
 	return buffer.String()
 }
 
 func runRespondMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string, secrets []storedSecret) {
+	t.Helper()
 	inputMessageStr := writeMessageWithLength(inputStr)
 	runRespondRawMessage(t, inputMessageStr, outputRegexpStr, errorStr, secrets)
 }
 
 func runRespondRawMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string, secrets []storedSecret) {
+	t.Helper()
 	runRespondRawMessages(t, []verifiedRequest{{inputStr, outputRegexpStr, errorStr}}, secrets)
 }
 
@@ -315,6 +331,7 @@ type verifiedRequest struct {
 }
 
 func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
+	t.Helper()
 	for i, request := range requests {
 		requests[i].InputStr = writeMessageWithLength(request.InputStr)
 	}
@@ -322,6 +339,7 @@ func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []stor
 }
 
 func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
+	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -349,6 +367,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 		if len(request.ErrorStr) > 0 {
 			require.Error(t, err)
 			assert.Equal(t, len(outbuf.String()), 0)
+
 			continue
 		}
 		assert.NoError(t, err)
@@ -364,10 +383,13 @@ func populateStore(ctx context.Context, s gopass.Store, secrets []storedSecret) 
 			return err
 		}
 	}
+
 	return nil
 }
 
 func readAndVerifyMessageLength(t *testing.T, rawMessage []byte) string {
+	t.Helper()
+
 	input := bytes.NewReader(rawMessage)
 	lenBytes := make([]byte, 4)
 
@@ -381,5 +403,6 @@ func readAndVerifyMessageLength(t *testing.T, rawMessage []byte) string {
 	msgBytes := make([]byte, length)
 	_, err = input.Read(msgBytes)
 	assert.NoError(t, err)
+
 	return string(msgBytes)
 }

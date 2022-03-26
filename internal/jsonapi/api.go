@@ -9,7 +9,7 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass"
 )
 
-// API type holding store and context
+// API type holding store and context.
 type API struct {
 	Store   gopass.Store
 	Reader  io.Reader
@@ -17,7 +17,7 @@ type API struct {
 	Version semver.Version
 }
 
-// ReadAndRespond a single message
+// ReadAndRespond a single message.
 func (api *API) ReadAndRespond(ctx context.Context) error {
 	ctx = ctxutil.WithHidden(ctx, true)
 	message, err := readMessage(api.Reader)
@@ -28,7 +28,7 @@ func (api *API) ReadAndRespond(ctx context.Context) error {
 	return api.respondMessage(ctx, message)
 }
 
-// RespondError sends err as JSON response
+// RespondError sends err as JSON response.
 func (api *API) RespondError(err error) error {
 	return sendSerializedJSONMessage(errorResponse{
 		Error: err.Error(),

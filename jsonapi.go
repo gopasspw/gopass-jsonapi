@@ -3,18 +3,16 @@ package main
 import (
 	"context"
 	"os"
-
 	"runtime"
 	"strings"
 
 	"github.com/blang/semver"
+	"github.com/fatih/color"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi/manifest"
 	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/gopass"
 	"github.com/gopasspw/gopass/pkg/termio"
-
-	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
@@ -28,7 +26,7 @@ type jsonapiCLI struct {
 	gp gopass.Store
 }
 
-// listen reads a json message on stdin and responds on stdout
+// listen reads a json message on stdin and responds on stdout.
 func (s *jsonapiCLI) listen(c *cli.Context) error {
 	ctx := ctxutil.WithGlobalFlags(c)
 
@@ -41,6 +39,7 @@ func (s *jsonapiCLI) listen(c *cli.Context) error {
 	if err := api.ReadAndRespond(ctx); err != nil {
 		return api.RespondError(err)
 	}
+
 	return nil
 }
 
@@ -57,6 +56,7 @@ func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Context) (string, er
 	if !manifest.ValidBrowser(browser) {
 		return "", errors.Errorf("%s not one of %s", browser, strings.Join(manifest.ValidBrowsers(), ","))
 	}
+
 	return browser, nil
 }
 
@@ -64,6 +64,7 @@ func (s *jsonapiCLI) getGlobalInstall(ctx context.Context, c *cli.Context) (bool
 	if !c.IsSet("global") {
 		return termio.AskForBool(ctx, color.BlueString("Install for all users? (might require sudo gopass)"), false)
 	}
+
 	return c.Bool("global"), nil
 }
 
@@ -71,17 +72,19 @@ func (s *jsonapiCLI) getLibPath(ctx context.Context, c *cli.Context, browser str
 	if !c.IsSet("libpath") && runtime.GOOS == "linux" && browser == "firefox" && global {
 		return termio.AskForString(ctx, color.BlueString("What is your lib path?"), "/usr/lib")
 	}
+
 	return c.String("libpath"), nil
 }
 
 func (s *jsonapiCLI) getWrapperPath(ctx context.Context, c *cli.Context, defaultWrapperPath string, wrapperName string) (string, error) {
-	path := c.String("path")
-	if path != "" {
+	if path := c.String("path"); path != "" {
 		return path, nil
 	}
+
 	path, err := termio.AskForString(ctx, color.BlueString("In which path should %s be installed?", wrapperName), defaultWrapperPath)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to ask for user input")
 	}
+
 	return path, nil
 }

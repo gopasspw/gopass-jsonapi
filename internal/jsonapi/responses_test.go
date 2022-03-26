@@ -4,9 +4,12 @@ import (
 	"testing"
 
 	"github.com/gopasspw/gopass/pkg/gopass"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUsername(t *testing.T) {
+	t.Parallel()
+
 	a := &API{}
 	for _, tc := range []struct {
 		Name string
@@ -24,9 +27,10 @@ func TestGetUsername(t *testing.T) {
 			Out:  "foo",
 		},
 	} {
-		got := a.getUsername(tc.Name, tc.Sec)
-		if got != tc.Out {
-			t.Errorf("Wrong username: %s != %s", got, tc.Out)
-		}
+		tc := tc
+		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.Out, a.getUsername(tc.Name, tc.Sec), "Wrong Username")
+		})
 	}
 }

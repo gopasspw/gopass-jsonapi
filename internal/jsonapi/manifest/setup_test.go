@@ -10,6 +10,8 @@ import (
 )
 
 func TestRender(t *testing.T) {
+	t.Parallel()
+
 	// windows: C:\Users\johndoe\AppData...
 	// *nix: /tmp
 	binDir := os.TempDir()
@@ -30,16 +32,19 @@ func TestRender(t *testing.T) {
 }
 
 func TestValidBrowser(t *testing.T) {
+	t.Parallel()
+
 	for _, b := range []string{"chrome", "chromium", "firefox"} {
 		assert.Equal(t, true, ValidBrowser(b))
 	}
 }
 
 func TestValidBrowsers(t *testing.T) {
+	t.Parallel()
+
 	if runtime.GOOS == "windows" {
 		assert.Equal(t, []string{"chrome", "chromium", "firefox"}, ValidBrowsers())
 	} else {
 		assert.Equal(t, []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}, ValidBrowsers())
 	}
-
 }

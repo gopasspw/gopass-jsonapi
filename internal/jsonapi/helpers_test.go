@@ -7,6 +7,8 @@ import (
 )
 
 func Test_checkIsPublicSuffix(t *testing.T) {
+	t.Parallel()
+
 	a := assert.New(t)
 
 	a.True(isPublicSuffix("co.uk"))
@@ -16,6 +18,8 @@ func Test_checkIsPublicSuffix(t *testing.T) {
 }
 
 func Test_regexSafeLower(t *testing.T) {
+	t.Parallel()
+
 	a := assert.New(t)
 	a.Equal("blabla", regexSafeLower("BlaBLA"))
 	a.Equal("\\[injected\\]\\*", regexSafeLower("[injected]*"))

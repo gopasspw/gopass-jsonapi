@@ -16,9 +16,9 @@ jobs:
         fetch-depth: 0
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
-        go-version: 1.x
+        go-version: 1.18
 
     - name: Ubuntu Dependencies
       run: sudo apt-get install --yes git gnupg2
@@ -50,7 +50,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.x
+        go-version: 1.18
 
     - name: MacOS Dependencies
       run: brew install git gnupg

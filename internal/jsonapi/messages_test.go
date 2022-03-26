@@ -9,6 +9,8 @@ import (
 )
 
 func TestRoundTrip(t *testing.T) {
+	t.Parallel()
+
 	a := assert.New(t)
 	var receivedMessage queryMessage
 

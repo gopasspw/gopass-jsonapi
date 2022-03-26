@@ -16,10 +16,8 @@ const (
 	name = "gopass-jsonapi"
 )
 
-var (
-	// Version is the released version of gopass
-	version string
-)
+// Version is the released version of gopass.
+var version string
 
 func main() {
 	ctx := context.Background()
@@ -59,8 +57,10 @@ func main() {
 		if strings.HasSuffix(os.Args[0], "native_host") || strings.HasSuffix(os.Args[0], "native_host.exe") {
 			return ja.listen(c)
 		}
+
 		return cli.ShowAppHelp(c)
 	}
+
 	app.Commands = []*cli.Command{
 		{
 			Name:        "listen",

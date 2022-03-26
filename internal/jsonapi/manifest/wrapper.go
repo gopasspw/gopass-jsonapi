@@ -29,7 +29,7 @@ fi
 exit $?
 `
 
-// Render returns the rendered wrapper and manifest
+// Render returns the rendered wrapper and manifest.
 func Render(browser, wrapperPath, binPath string, global bool) ([]byte, []byte, error) {
 	mf, err := getManifestContent(browser, wrapperPath)
 	if err != nil {
@@ -62,6 +62,7 @@ func getWrapperContent(gopassPath string) ([]byte, error) {
 			Gopass: gopassPath,
 		},
 	)
+
 	return buf.Bytes(), err
 }
 
@@ -73,8 +74,10 @@ func gopassPath(global bool) string {
 			}
 		}
 	}
+
 	if gpp, err := exec.LookPath("gopass-jsonapi"); err == nil {
 		return gpp
 	}
+
 	return "gopass-jsonapi"
 }
