@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	// DefaultBrowser to select when no browser is specified
+	// DefaultBrowser to select when no browser is specified.
 	DefaultBrowser = "chrome"
 
-	// Name is the name of the manifest
+	// Name is the name of the manifest.
 	Name           = "com.justwatch.gopass"
 	description    = "Gopass wrapper to search and return passwords"
 	connectionType = "stdio"

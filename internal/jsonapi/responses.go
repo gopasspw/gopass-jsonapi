@@ -13,13 +13,10 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass/secrets"
 	"github.com/gopasspw/gopass/pkg/otp"
 	"github.com/gopasspw/gopass/pkg/pwgen"
-
 	"github.com/pkg/errors"
 )
 
-var (
-	sep = "/"
-)
+var sep = "/"
 
 func (api *API) respondMessage(ctx context.Context, msgBytes []byte) error {
 	var message messageType
@@ -57,6 +54,7 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to list store")
 	}
+
 	choices := make([]string, 0, 10)
 
 	for !isPublicSuffix(message.Host) {
@@ -65,6 +63,7 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 		if err := searchAndAppendChoices(reQuery, l, &choices); err != nil {
 			return errors.Wrapf(err, "failed to append search results")
 		}
+
 		if len(choices) > 0 {
 			break
 		} else {
@@ -106,6 +105,7 @@ func searchAndAppendChoices(reQuery string, list []string, choices *[]string) er
 			*choices = append(*choices, value)
 		}
 	}
+
 	return nil
 }
 
@@ -156,6 +156,7 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	}
 
 	converted := convertMixedMapInterfaces(interface{}(responseData))
+
 	return sendSerializedJSONMessage(converted, api.Writer)
 }
 
@@ -193,7 +194,7 @@ func (api *API) respondCreateEntry(ctx context.Context, msgBytes []byte) error {
 	sec := secrets.New()
 	sec.SetPassword(message.Password)
 	if len(message.Login) > 0 {
-		sec.Set("user", message.Login)
+		_ = sec.Set("user", message.Login)
 	}
 	if err := api.Store.Set(ctx, message.Name, sec); err != nil {
 		return errors.Wrapf(err, "failed to store secret")
@@ -224,6 +225,7 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 	if err != nil {
 		return errors.Wrapf(err, "failed to get secret")
 	}
+
 	var val string
 	if message.Key == "" {
 		val = sec.Password()

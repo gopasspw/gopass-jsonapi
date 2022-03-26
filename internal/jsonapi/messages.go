@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 )
@@ -85,6 +86,7 @@ func readMessage(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, eofReturn(err)
 	}
+
 	if count != length {
 		return nil, fmt.Errorf("incomplete message read")
 	}
@@ -103,9 +105,10 @@ func getMessageLength(msg []byte) (int, error) {
 }
 
 func eofReturn(err error) error {
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return nil
 	}
+
 	return err
 }
 
@@ -134,6 +137,7 @@ func sendSerializedJSONMessage(message interface{}, w io.Writer) error {
 	if wcount != int64(len(serialized)) {
 		return fmt.Errorf("message not fully written")
 	}
+
 	return err
 }
 

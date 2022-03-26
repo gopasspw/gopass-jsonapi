@@ -29,6 +29,8 @@ exit $?
 )
 
 func TestWrapperContent(t *testing.T) {
+	t.Parallel()
+
 	b, err := getWrapperContent("gopass-jsonapi")
 	require.NoError(t, err)
 	assert.Equal(t, wrapperGolden, string(b))

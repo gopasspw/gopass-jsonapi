@@ -6,11 +6,12 @@ import (
 
 	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/tests/gptest"
-
 	"github.com/stretchr/testify/assert"
 )
 
 func TestJSONAPI(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

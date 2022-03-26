@@ -8,9 +8,10 @@ import (
 )
 
 // isPublicSuffix returns true if this host is one users can or could directly
-// register names
+// register names.
 func isPublicSuffix(host string) bool {
 	suffix, _ := publicsuffix.PublicSuffix(host)
+
 	return host == suffix
 }
 
@@ -25,17 +26,22 @@ func convertMixedMapInterfaces(i interface{}) interface{} {
 		for k, v := range x {
 			stringMap[k] = convertMixedMapInterfaces(v)
 		}
+
 		return stringMap
 	case map[interface{}]interface{}:
 		stringMap := map[string]interface{}{}
 		for k, v := range x {
-			stringMap[k.(string)] = convertMixedMapInterfaces(v)
+			if sv, ok := k.(string); ok {
+				stringMap[sv] = convertMixedMapInterfaces(v)
+			}
 		}
+
 		return stringMap
 	case []interface{}:
 		for i, v := range x {
 			x[i] = convertMixedMapInterfaces(v)
 		}
 	}
+
 	return i
 }

@@ -3,10 +3,15 @@
 
 package manifest
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestManifest(t *testing.T) {
-	if _, err := getLocation("foobar", "", false); err == nil {
-		t.Error("browser should not exist")
-	}
+	t.Parallel()
+
+	_, err := getLocation("foobar", "", false)
+	assert.Error(t, err)
 }

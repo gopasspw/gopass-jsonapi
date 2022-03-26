@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	// WrapperName is the name of the gopass wrapper
+	// WrapperName is the name of the gopass wrapper.
 	WrapperName = "gopass_wrapper.sh"
 
 	globalManifestPath = map[string]map[string]string{
@@ -59,23 +59,25 @@ var (
 	}
 )
 
-// ValidBrowser returns true if the given browser is supported on this platform
+// ValidBrowser returns true if the given browser is supported on this platform.
 func ValidBrowser(name string) bool {
 	_, found := manifestPath[runtime.GOOS][name]
+
 	return found
 }
 
-// ValidBrowsers are all browsers for which the manifest can be currently installed
+// ValidBrowsers are all browsers for which the manifest can be currently installed.
 func ValidBrowsers() []string {
 	keys := make([]string, 0, len(manifestPath[runtime.GOOS]))
 	for k := range manifestPath[runtime.GOOS] {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+
 	return keys
 }
 
-// Path returns the manifest file path
+// Path returns the manifest file path.
 func Path(browser, libpath string, globalInstall bool) (string, error) {
 	location, err := getLocation(browser, libpath, globalInstall)
 	if err != nil {
@@ -90,7 +92,7 @@ func Path(browser, libpath string, globalInstall bool) (string, error) {
 	return filepath.Join(expanded, Name+".json"), nil
 }
 
-// getLocation returns only the manifest path
+// getLocation returns only the manifest path.
 func getLocation(browser, libpath string, globalInstall bool) (string, error) {
 	if globalInstall {
 		return getGlobalLocation(browser, libpath)
@@ -100,10 +102,12 @@ func getLocation(browser, libpath string, globalInstall bool) (string, error) {
 	if !found {
 		return "", fmt.Errorf("platform %s is currently not supported", runtime.GOOS)
 	}
+
 	path, found := pm[browser]
 	if !found {
 		return "", fmt.Errorf("browser %s on %s is currently not supported", browser, runtime.GOOS)
 	}
+
 	return path, nil
 }
 
@@ -112,12 +116,15 @@ func getGlobalLocation(browser, libpath string) (string, error) {
 	if !found {
 		return "", fmt.Errorf("platform %s is currently not supported", runtime.GOOS)
 	}
+
 	path, found := pm[browser]
 	if !found {
 		return "", fmt.Errorf("browser %s on %s is currently not supported", browser, runtime.GOOS)
 	}
+
 	if browser == "firefox" {
 		path = libpath + "/" + path
 	}
+
 	return path, nil
 }

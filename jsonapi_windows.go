@@ -10,16 +10,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi/manifest"
 	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/termio"
-
-	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sys/windows/registry"
 )
 
-// setup sets up manifest for gopass as native messaging host
+// setup sets up manifest for gopass as native messaging host.
 func (s *jsonapiCLI) setup(c *cli.Context) error {
 	ctx := ctxutil.WithGlobalFlags(c)
 	browser, err := s.getBrowser(ctx, c)
@@ -67,7 +66,7 @@ func (s *jsonapiCLI) setup(c *cli.Context) error {
 		return err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(wrapperFileName), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(wrapperFileName), 0o755); err != nil {
 		return fmt.Errorf("failed to create wrapper path: %s", err)
 	}
 
@@ -80,10 +79,11 @@ func (s *jsonapiCLI) setup(c *cli.Context) error {
 		return fmt.Errorf("failed to copy gopass binary to wrapper path: %s", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(manifestPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(manifestPath), 0o755); err != nil {
 		return fmt.Errorf("failed to create manifest path: %s", err)
 	}
-	if err := ioutil.WriteFile(manifestPath, mf, 0644); err != nil {
+
+	if err := ioutil.WriteFile(manifestPath, mf, 0o644); err != nil {
 		return fmt.Errorf("failed to write manifest file: %s", err)
 	}
 
@@ -107,6 +107,7 @@ func (s *jsonapiCLI) setRegistryValue(path string, value string, globalInstall b
 		}
 	}
 	defer k.Close()
+
 	return k.SetStringValue("", value)
 }
 
@@ -132,5 +133,6 @@ func (s *jsonapiCLI) copyExecutionBinary(destFileName string) error {
 	if err != nil {
 		return err
 	}
+
 	return destFile.Sync()
 }
