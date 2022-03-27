@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/gopasspw/gopass/pkg/fsutil"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -24,10 +25,29 @@ else
 	eval $(gpg-agent --daemon)
 fi
 
+export PATH="$PATH:{{ .Path }}"
+
 {{ .Gopass }} listen
 
 exit $?
 `
+
+func binsPath() string {
+	// required for MacOS with Homebrew
+	path := "/usr/local/bin"
+
+	if p := "/opt/homebrew/bin"; fsutil.IsDir(p) {
+		path = p + ":" + path
+	}
+
+	// required for GPGTools on MacOS
+	gpgTools := "/usr/local/MacGPG2/bin"
+	if fsutil.IsDir(gpgTools) {
+		path += gpgTools + ":" + path
+	}
+
+	return path
+}
 
 // Render returns the rendered wrapper and manifest.
 func Render(browser, wrapperPath, binPath string, global bool) ([]byte, []byte, error) {
@@ -58,8 +78,10 @@ func getWrapperContent(gopassPath string) ([]byte, error) {
 		buf,
 		struct {
 			Gopass string
+			Path   string
 		}{
 			Gopass: gopassPath,
+			Path:   binsPath(),
 		},
 	)
 
