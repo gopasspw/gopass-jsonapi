@@ -5,19 +5,20 @@ go 1.18
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/fatih/color v1.13.0
-	github.com/gopasspw/gopass v1.14.0
+	github.com/gopasspw/gopass v1.14.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.8.0
-	golang.org/x/net v0.0.0-20220325170049-de3da57026de
-	golang.org/x/sys v0.0.0-20220325203850-36772127a21f
+	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
+	golang.org/x/sys v0.0.0-20220412071739-889880a91fd5
 )
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.10 // indirect
 	filippo.io/age v1.0.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
+	github.com/ProtonMail/go-crypto v0.0.0-20220407094043-a94812496cf5 // indirect
 	github.com/antzucaro/matchr v0.0.0-20210222213004-b04723ef80f0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
@@ -27,7 +28,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190623212516-8a1682060722 // indirect
 	github.com/gokyle/twofactor v1.0.1 // indirect
-	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -47,9 +48,9 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/exp v0.0.0-20220325121720-054d8573a5d8 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	golang.org/x/exp v0.0.0-20220407100705-7b9b53b0aca4 // indirect
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
