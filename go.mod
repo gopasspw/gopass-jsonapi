@@ -9,7 +9,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
-	github.com/urfave/cli/v2 v2.4.8
+	github.com/urfave/cli/v2 v2.8.0
 	golang.org/x/net v0.0.0-20220325170049-de3da57026de
 	golang.org/x/sys v0.0.0-20220325203850-36772127a21f
 )
@@ -18,6 +18,7 @@ require (
 	bitbucket.org/creachadair/stringset v0.0.10 // indirect
 	filippo.io/age v1.0.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
+	github.com/antzucaro/matchr v0.0.0-20210222213004-b04723ef80f0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/caspr-io/yamlpath v0.0.0-20200722075116-502e8d113a9b // indirect
