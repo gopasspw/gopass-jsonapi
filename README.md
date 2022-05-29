@@ -31,6 +31,13 @@ make build
 
 You need to run `gopass-jsonapi configure` for each browser you want to use with `gopass`.
 
+**Fedora**:
+The jsonapi is available in Fedora repositories, so you can simply install it with:
+
+```bash
+sudo dnf install gopass-jsonapi
+```
+
 **Windows**:
 The jsonapi setup copies the current gopass-jsonapi binary as a wrapper executable file (`gopass_native_host.exe` calls the listener directly).
 It is recommended to run `gopass-jsonapi configure` after each **update** to have the latest version setup for your browser.
