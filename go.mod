@@ -8,7 +8,7 @@ require (
 	github.com/gopasspw/gopass v1.14.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 	github.com/urfave/cli/v2 v2.10.2
 	golang.org/x/net v0.0.0-20220524220425-1d687d428aca
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
