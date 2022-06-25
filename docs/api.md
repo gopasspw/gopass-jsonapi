@@ -71,6 +71,25 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 }
 ```
 
+### `getData`
+
+#### Query:
+
+```json
+{
+   "type": "getData",
+   "entry": "somewhere/else/secretsauce"
+}
+```
+
+#### Response:
+
+```json
+{
+   "current_totp": "576548"
+}
+```
+
 ### `create`
 
 #### Query:
