@@ -9,7 +9,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.4
-	github.com/urfave/cli/v2 v2.10.3
+	github.com/urfave/cli/v2 v2.11.1
 	golang.org/x/net v0.0.0-20220622184535-263ec571b305
 	golang.org/x/sys v0.0.0-20220622161953-175b2fd9d664
 )
