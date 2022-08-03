@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/blang/semver"
 	"github.com/gopasspw/gopass/pkg/ctxutil"
@@ -16,6 +17,8 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass/apimock"
 	"github.com/gopasspw/gopass/pkg/gopass/secrets/secparse"
 	"github.com/gopasspw/gopass/pkg/otp"
+	potp "github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -164,9 +167,8 @@ login_fields: "invalid"`)},
 func TestRespondMessageGetData(t *testing.T) {
 	t.Parallel()
 
-	totpSuffix := "//totp/github-fake-account?secret=rpna55555qyho42j"
-	totpURL := "otpauth:" + totpSuffix
-	totpSecret := newSec(t, "totp_are_cool\n"+totpURL)
+	totpURL := "otpauth://totp/github-fake-account?secret=rpna55555qyho42j"
+	totpSecret := newSec(t, "totp_are_cool\ntotp: "+totpURL)
 
 	secrets := []storedSecret{
 		{[]string{"totp"}, totpSecret},
@@ -181,11 +183,18 @@ sub:
 `)},
 	}
 
-	totp, _, err := otp.Calculate("_", totpSecret)
+	two, err := otp.Calculate("_", totpSecret)
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	expectedTotp := totp.OTP()
+	token, err := totp.GenerateCodeCustom(two.Secret(), time.Now(), totp.ValidateOpts{
+		Period:    uint(two.Period()),
+		Skew:      1,
+		Digits:    potp.DigitsSix,
+		Algorithm: potp.AlgorithmSHA1,
+	})
+	require.NoError(t, err)
+	expectedTotp := token
 
 	runRespondMessage(t,
 		`{"type":"getData","entry":"foo"}`,
@@ -203,7 +212,7 @@ sub:
 
 	runRespondMessage(t,
 		`{"type":"getData","entry":"totp"}`,
-		fmt.Sprintf(`{"current_totp":"%s"}`, expectedTotp),
+		fmt.Sprintf(`{"current_totp":"%s","totp":".*"}`, expectedTotp),
 		"", secrets)
 }
 

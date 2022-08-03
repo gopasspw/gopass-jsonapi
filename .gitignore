@@ -16,3 +16,4 @@
 
 gopass-jsonapi*
 dist/
+.vscode/
