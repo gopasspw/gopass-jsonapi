@@ -8,8 +8,9 @@ require (
 	github.com/gopasspw/gopass v1.14.4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
+	github.com/pquerna/otp v1.3.0
 	github.com/stretchr/testify v1.8.0
-	github.com/urfave/cli/v2 v2.11.1
+	github.com/urfave/cli/v2 v2.11.2
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b
 	golang.org/x/sys v0.0.0-20220731174439-a90be440212d
 )
@@ -42,7 +43,6 @@ require (
 	github.com/muesli/crunchy v0.4.0 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/pquerna/otp v1.3.0 // indirect
 	github.com/rs/zerolog v1.27.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/twpayne/go-pinentry v0.2.0 // indirect
