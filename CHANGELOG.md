@@ -1,3 +1,7 @@
+## 1.14.5
+
+- Bump dependencies
+
 ## 1.11.1
 
 - Align reported API version with included gopass module (#2)
