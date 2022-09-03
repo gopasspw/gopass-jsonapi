@@ -28,7 +28,7 @@ jobs:
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v5
         with:
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       -
         name: Debug
@@ -59,3 +59,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GOPATH: /home/runner/go
+      -
+        name: "Upload deb files to apt hosting"
+        run: |
+          for D in dist/*.deb; do
+            curl -H"X-Filename: ${D}" -H"X-Apikey: ${APIKEY}" -XPOST --data-binary @$D https://packages.gopass.pw/repos/gopass/upload
+          done
+        env:
+          APIKEY: ${{ secrets.APT_APIKEY }}
