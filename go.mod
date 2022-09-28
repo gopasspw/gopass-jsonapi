@@ -5,14 +5,14 @@ go 1.18
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/fatih/color v1.13.0
-	github.com/gopasspw/gopass v1.14.8
+	github.com/gopasspw/gopass v1.14.9
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.3.1-0.20220803165443-c62dc589378a
 	github.com/stretchr/testify v1.8.0
 	github.com/urfave/cli/v2 v2.16.3
 	golang.org/x/net v0.0.0-20220927171203-f486391704dc
-	golang.org/x/sys v0.0.0-20220927170352-d9d178bc13c6
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
 )
 
 require (
