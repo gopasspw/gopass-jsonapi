@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/blang/semver"
-	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/debug"
 	"github.com/gopasspw/gopass/pkg/gopass"
 	"github.com/gopasspw/gopass/pkg/gopass/apimock"
@@ -351,8 +350,6 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	ctx = ctxutil.WithNotifications(ctx, false)
 
 	store := apimock.New()
 	require.NotNil(t, store)
