@@ -163,8 +163,10 @@ login_fields: "invalid"`)},
 	}
 }
 
-func TestRespondMessageGetData(t *testing.T) {
-	t.Parallel()
+func TestRespondMessageGetData(t *testing.T) { //nolint:paralleltest
+	nowFunc = func() time.Time {
+		return time.Date(2022, 1, 1, 2, 1, 1, 1, time.UTC)
+	}
 
 	totpURL := "otpauth://totp/github-fake-account?secret=rpna55555qyho42j"
 	totpSecret := newSec(t, "totp_are_cool\ntotp: "+totpURL)
@@ -186,7 +188,7 @@ sub:
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	token, err := totp.GenerateCodeCustom(two.Secret(), time.Now(), totp.ValidateOpts{
+	token, err := totp.GenerateCodeCustom(two.Secret(), nowFunc(), totp.ValidateOpts{
 		Period:    uint(two.Period()),
 		Skew:      1,
 		Digits:    potp.DigitsSix,

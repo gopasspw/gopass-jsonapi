@@ -19,7 +19,10 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
-var sep = "/"
+var (
+	sep     = "/"
+	nowFunc = time.Now
+)
 
 func (api *API) respondMessage(ctx context.Context, msgBytes []byte) error {
 	var message messageType
@@ -155,7 +158,7 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	}
 	two, err := otp.Calculate("_", sec)
 	if err == nil && two.Type() == "totp" {
-		token, _ := totp.GenerateCodeCustom(two.Secret(), time.Now(), totp.ValidateOpts{
+		token, _ := totp.GenerateCodeCustom(two.Secret(), nowFunc(), totp.ValidateOpts{
 			Period:    uint(two.Period()),
 			Skew:      1,
 			Digits:    potp.DigitsSix,
