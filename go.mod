@@ -5,10 +5,10 @@ go 1.18
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/fatih/color v1.13.0
-	github.com/gopasspw/gopass v1.15.1
+	github.com/gopasspw/gopass v1.15.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/pquerna/otp v1.3.1-0.20220803165443-c62dc589378a
+	github.com/pquerna/otp v1.4.0
 	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli/v2 v2.23.7
 	golang.org/x/net v0.4.0
@@ -58,9 +58,9 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/zalando/go-keyring v0.2.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
-	golang.org/x/exp v0.0.0-20221211140036-ad323defaf05 // indirect
+	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15 // indirect
 	golang.org/x/term v0.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
