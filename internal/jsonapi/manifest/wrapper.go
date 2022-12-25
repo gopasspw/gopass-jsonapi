@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/gopasspw/gopass/pkg/appdir"
 	"github.com/gopasspw/gopass/pkg/fsutil"
-	"github.com/mitchellh/go-homedir"
 )
 
 const wrapperTemplate = `#!/bin/sh
@@ -56,7 +56,7 @@ func binsPath() string {
 
 // Render returns the rendered wrapper and manifest.
 func Render(browser, wrapperPath, binPath string, global bool) ([]byte, []byte, error) {
-	mf, err := getManifestContent(browser, wrapperPath)
+	mf, err := renaderManifestContent(browser, wrapperPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,7 +64,7 @@ func Render(browser, wrapperPath, binPath string, global bool) ([]byte, []byte, 
 	if binPath == "" {
 		binPath = gopassPath(global)
 	}
-	wrap, err := getWrapperContent(binPath)
+	wrap, err := renderWrapperContent(binPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -72,7 +72,7 @@ func Render(browser, wrapperPath, binPath string, global bool) ([]byte, []byte, 
 	return wrap, mf, nil
 }
 
-func getWrapperContent(gopassPath string) ([]byte, error) {
+func renderWrapperContent(gopassPath string) ([]byte, error) {
 	tmpl, err := template.New("").Parse(wrapperTemplate)
 	if err != nil {
 		return nil, err
@@ -94,11 +94,12 @@ func getWrapperContent(gopassPath string) ([]byte, error) {
 }
 
 func gopassPath(global bool) string {
+	// look for a gopass install in the users homedir first
 	if !global {
-		if hd, err := homedir.Dir(); err == nil {
-			if gpp, err := os.Executable(); err == nil && strings.HasPrefix(gpp, hd) {
-				return gpp
-			}
+		hd := appdir.UserHome()
+		gpp, err := os.Executable()
+		if err == nil && strings.HasPrefix(gpp, hd) {
+			return gpp
 		}
 	}
 

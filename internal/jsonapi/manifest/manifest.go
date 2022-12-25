@@ -21,7 +21,7 @@ var (
 	}
 )
 
-func getManifestContent(browser, wrapperPath string) ([]byte, error) {
+func renaderManifestContent(browser, wrapperPath string) ([]byte, error) {
 	switch browser {
 	case "firefox":
 		return newFirefoxManifest(wrapperPath).Format()

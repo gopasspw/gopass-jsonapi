@@ -9,7 +9,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi/manifest"
 	"github.com/gopasspw/gopass/pkg/termio"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
 
@@ -24,7 +23,7 @@ func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Context) (string, er
 		return "", fmt.Errorf("failed to ask for user input: %w", err)
 	}
 	if !manifest.ValidBrowser(browser) {
-		return "", errors.Errorf("%s not one of %s", browser, strings.Join(manifest.ValidBrowsers(), ","))
+		return "", fmt.Errorf("%s not one of %s", browser, strings.Join(manifest.ValidBrowsers(), ","))
 	}
 
 	return browser, nil

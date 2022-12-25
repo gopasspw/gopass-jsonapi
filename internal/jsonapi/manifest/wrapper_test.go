@@ -43,7 +43,7 @@ func TestWrapperContent(t *testing.T) {
 		return false
 	}
 
-	b, err := getWrapperContent("gopass-jsonapi")
+	b, err := renderWrapperContent("gopass-jsonapi")
 	require.NoError(t, err)
 	assert.Equal(t, wrapperGolden, string(b))
 }

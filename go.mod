@@ -6,8 +6,6 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/fatih/color v1.13.0
 	github.com/gopasspw/gopass v1.15.2
-	github.com/mitchellh/go-homedir v1.1.0
-	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
 	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli/v2 v2.23.7
