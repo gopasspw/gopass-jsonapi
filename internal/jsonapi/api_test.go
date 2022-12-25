@@ -42,8 +42,6 @@ func TestRespondMessageBrokenInput(t *testing.T) {
 }
 
 func TestRespondGetVersion(t *testing.T) {
-	t.Parallel()
-
 	runRespondMessage(t,
 		`{"type": "getVersion"}`,
 		`{"version":"1.2.3-test","major":1,"minor":2,"patch":3}`,
@@ -62,8 +60,6 @@ func newSec(t *testing.T, in string) gopass.Secret {
 }
 
 func TestRespondMessageQuery(t *testing.T) {
-	t.Parallel()
-
 	secrets := []storedSecret{
 		{[]string{"awesomePrefix", "foo", "bar"}, newSec(t, "20\n")},
 		{[]string{"awesomePrefix", "fixed", "secret"}, newSec(t, "moar\n")},
@@ -216,8 +212,6 @@ sub:
 }
 
 func TestRespondMessageCreate(t *testing.T) {
-	t.Parallel()
-
 	runRespondMessages(t, nil, nil)
 
 	t.Skip("broken") // TODO fix this
@@ -277,8 +271,6 @@ func TestRespondMessageCreate(t *testing.T) {
 }
 
 func TestCopyToClipboard(t *testing.T) {
-	t.Parallel()
-
 	secrets := []storedSecret{
 		{[]string{"foo", "bar"}, newSec(t, "20\n")},
 		{[]string{"yamllogin"}, newSec(t, "thesecret\n---\nlogin: muh")},
@@ -357,16 +349,14 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 	require.NotNil(t, store)
 	assert.NoError(t, populateStore(ctx, store, secrets))
 
+	v, err := semver.Parse("1.2.3-test")
+	require.NoError(t, err)
+
 	for _, request := range requests {
 		var inbuf bytes.Buffer
 		var outbuf bytes.Buffer
 
-		api := API{
-			store,
-			&inbuf,
-			&outbuf,
-			semver.MustParse("1.2.3-test"),
-		}
+		api := New(store, &inbuf, &outbuf, v)
 
 		_, err := inbuf.Write([]byte(request.InputStr))
 		assert.NoError(t, err)
@@ -378,6 +368,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 
 			continue
 		}
+
 		assert.NoError(t, err)
 		outputMessage := readAndVerifyMessageLength(t, outbuf.Bytes())
 		assert.NotEqual(t, "", request.OutputRegexpStr, "Empty string would match any output")

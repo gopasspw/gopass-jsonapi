@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -51,7 +52,7 @@ func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Context) (string, er
 
 	browser, err := termio.AskForString(ctx, color.BlueString("For which browser do you want to install gopass native messaging? [%s]", strings.Join(manifest.ValidBrowsers(), ",")), manifest.DefaultBrowser)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to ask for user input")
+		return "", fmt.Errorf("failed to ask for user input: %w", err)
 	}
 	if !manifest.ValidBrowser(browser) {
 		return "", errors.Errorf("%s not one of %s", browser, strings.Join(manifest.ValidBrowsers(), ","))
@@ -83,7 +84,7 @@ func (s *jsonapiCLI) getWrapperPath(ctx context.Context, c *cli.Context, default
 
 	path, err := termio.AskForString(ctx, color.BlueString("In which path should %s be installed?", wrapperName), defaultWrapperPath)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to ask for user input")
+		return "", fmt.Errorf("failed to ask for user input: %w", err)
 	}
 
 	return path, nil

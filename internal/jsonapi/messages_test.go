@@ -17,10 +17,10 @@ func TestRoundTrip(t *testing.T) {
 	message := queryMessage{Query: "holla"}
 	var buffer bytes.Buffer
 
-	err := sendSerializedJSONMessage(message, &buffer)
+	err := sendResponse(message, &buffer)
 	a.NoError(err)
 
-	received, err := readMessage(&buffer)
+	received, err := readRequest(&buffer)
 	a.NoError(err)
 
 	a.NoError(json.Unmarshal(received, &receivedMessage))

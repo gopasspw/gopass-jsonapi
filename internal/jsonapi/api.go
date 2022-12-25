@@ -30,17 +30,17 @@ func New(s gopass.Store, r io.Reader, w io.Writer, v semver.Version) *API {
 // ServeMessage processes a single message.
 func (api *API) ServeMessage(ctx context.Context) error {
 	ctx = ctxutil.WithHidden(ctx, true)
-	msg, err := readMessage(api.Reader)
+	msg, err := readRequest(api.Reader)
 	if msg == nil || err != nil {
 		return err
 	}
 
-	return api.respondMessage(ctx, msg)
+	return api.sendResponse(ctx, msg)
 }
 
 // SendErrorResponse sends err as JSON response.
 func (api *API) SendErrorResponse(err error) error {
-	return sendSerializedJSONMessage(errorResponse{
+	return sendResponse(errorResponse{
 		Error: err.Error(),
 	}, api.Writer)
 }
