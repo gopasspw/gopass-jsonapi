@@ -30,7 +30,7 @@ func (s *jsonapiCLI) listen(c *cli.Context) error {
 	}
 
 	api := jsonapi.New(s.gp, stdin, stdout, version)
-	if api.ServeMessage(ctx); err != nil {
+	if err := api.ServeMessage(ctx); err != nil {
 		return api.SendErrorResponse(err)
 	}
 
