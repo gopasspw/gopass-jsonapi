@@ -10,7 +10,14 @@ import (
 )
 
 func TestRender(t *testing.T) {
-	t.Parallel()
+	idf := isDirFn
+	defer func() {
+		isDirFn = idf
+	}()
+
+	isDirFn = func(_ string) bool {
+		return false
+	}
 
 	// windows: C:\Users\johndoe\AppData...
 	// *nix: /tmp

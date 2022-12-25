@@ -35,17 +35,19 @@ export PATH="$PATH:{{ .Path }}"
 exit $?
 `
 
+var isDirFn func(string) bool = fsutil.IsDir
+
 func binsPath() string {
 	// required for MacOS with Homebrew
 	path := "/usr/local/bin"
 
-	if p := "/opt/homebrew/bin"; fsutil.IsDir(p) {
+	if p := "/opt/homebrew/bin"; isDirFn(p) {
 		path = p + ":" + path
 	}
 
 	// required for GPGTools on MacOS
 	gpgTools := "/usr/local/MacGPG2/bin"
-	if fsutil.IsDir(gpgTools) {
+	if isDirFn(gpgTools) {
 		path += gpgTools + ":" + path
 	}
 

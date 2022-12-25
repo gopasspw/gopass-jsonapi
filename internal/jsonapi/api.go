@@ -17,6 +17,16 @@ type API struct {
 	Version semver.Version
 }
 
+// New creates a new instance of the JSON API
+func New(s gopass.Store, r io.Reader, w io.Writer, v semver.Version) *API {
+	return &API{
+		Store:   s,
+		Reader:  r,
+		Writer:  w,
+		Version: v,
+	}
+}
+
 // ReadAndRespond a single message.
 func (api *API) ReadAndRespond(ctx context.Context) error {
 	ctx = ctxutil.WithHidden(ctx, true)
