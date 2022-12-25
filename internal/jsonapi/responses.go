@@ -13,49 +13,48 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass/secrets"
 	"github.com/gopasspw/gopass/pkg/otp"
 	"github.com/gopasspw/gopass/pkg/pwgen"
-
-	"github.com/pkg/errors"
 )
 
-var (
-	sep = "/"
-)
+var sep = "/"
 
-func (api *API) respondMessage(ctx context.Context, msgBytes []byte) error {
-	var message messageType
-	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+// sendResponse unmarshals the payload twice. First into a generic struct to
+// determine the exact request type and then again into the proper request
+// struct with all the necessary fields.
+func (api *API) sendResponse(ctx context.Context, buf []byte) error {
+	msg := &messageType{}
+	if err := json.Unmarshal(buf, msg); err != nil {
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
-	switch message.Type {
+	switch msg.Type {
 	case "query":
-		return api.respondQuery(ctx, msgBytes)
+		return api.respondQuery(ctx, buf)
 	case "queryHost":
-		return api.respondHostQuery(ctx, msgBytes)
+		return api.respondHostQuery(ctx, buf)
 	case "getLogin":
-		return api.respondGetLogin(ctx, msgBytes)
+		return api.respondGetLogin(ctx, buf)
 	case "getData":
-		return api.respondGetData(ctx, msgBytes)
+		return api.respondGetData(ctx, buf)
 	case "create":
-		return api.respondCreateEntry(ctx, msgBytes)
+		return api.respondCreateEntry(ctx, buf)
 	case "copyToClipboard":
-		return api.respondCopyToClipboard(ctx, msgBytes)
+		return api.respondCopyToClipboard(ctx, buf)
 	case "getVersion":
 		return api.respondGetVersion()
 	default:
-		return fmt.Errorf("unknown message of type %s", message.Type)
+		return fmt.Errorf("unknown message of type %s", msg.Type)
 	}
 }
 
 func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 	var message queryHostMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	l, err := api.Store.List(ctx)
 	if err != nil {
-		return errors.Wrapf(err, "failed to list store")
+		return fmt.Errorf("failed to list store: %w", err)
 	}
 	choices := make([]string, 0, 10)
 
@@ -63,7 +62,7 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 		// only query for paths and files in the store fully matching the hostname.
 		reQuery := fmt.Sprintf("(^|.*/)%s($|/.*)", regexSafeLower(message.Host))
 		if err := searchAndAppendChoices(reQuery, l, &choices); err != nil {
-			return errors.Wrapf(err, "failed to append search results")
+			return fmt.Errorf("failed to append search results: %w", err)
 		}
 		if len(choices) > 0 {
 			break
@@ -72,33 +71,33 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 		}
 	}
 
-	return sendSerializedJSONMessage(choices, api.Writer)
+	return sendJSONResponse(choices, api.Writer)
 }
 
 func (api *API) respondQuery(ctx context.Context, msgBytes []byte) error {
 	var message queryMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	l, err := api.Store.List(ctx)
 	if err != nil {
-		return errors.Wrapf(err, "failed to list store")
+		return fmt.Errorf("failed to list store: %w", err)
 	}
 
 	choices := make([]string, 0, 10)
 	reQuery := fmt.Sprintf(".*%s.*", regexSafeLower(message.Query))
 	if err := searchAndAppendChoices(reQuery, l, &choices); err != nil {
-		return errors.Wrapf(err, "failed to append search results")
+		return fmt.Errorf("failed to append search results: %w", err)
 	}
 
-	return sendSerializedJSONMessage(choices, api.Writer)
+	return sendJSONResponse(choices, api.Writer)
 }
 
 func searchAndAppendChoices(reQuery string, list []string, choices *[]string) error {
 	re, err := regexp.Compile(reQuery)
 	if err != nil {
-		return errors.Wrapf(err, "failed to compile regexp '%s': %s", reQuery, err)
+		return fmt.Errorf("failed to compile regexp '%s': %w", reQuery, err)
 	}
 
 	for _, value := range list {
@@ -112,15 +111,15 @@ func searchAndAppendChoices(reQuery string, list []string, choices *[]string) er
 func (api *API) respondGetLogin(ctx context.Context, msgBytes []byte) error {
 	var message getLoginMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")
 	if err != nil {
-		return errors.Wrapf(err, "failed to get secret")
+		return fmt.Errorf("failed to get secret: %w", err)
 	}
 
-	return sendSerializedJSONMessage(loginResponse{
+	return sendJSONResponse(loginResponse{
 		Username: api.getUsername(message.Entry, sec),
 		Password: sec.Password(),
 	}, api.Writer)
@@ -129,12 +128,12 @@ func (api *API) respondGetLogin(ctx context.Context, msgBytes []byte) error {
 func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	var message getDataMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")
 	if err != nil {
-		return errors.Wrapf(err, "failed to get secret")
+		return fmt.Errorf("failed to get secret: %w", err)
 	}
 
 	keys := sec.Keys()
@@ -156,7 +155,7 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	}
 
 	converted := convertMixedMapInterfaces(interface{}(responseData))
-	return sendSerializedJSONMessage(converted, api.Writer)
+	return sendJSONResponse(converted, api.Writer)
 }
 
 func (api *API) getUsername(name string, sec gopass.Secret) string {
@@ -179,7 +178,7 @@ func (api *API) getUsername(name string, sec gopass.Secret) string {
 func (api *API) respondCreateEntry(ctx context.Context, msgBytes []byte) error {
 	var message createEntryMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	if _, err := api.Store.Get(ctx, message.Name, "latest"); err == nil {
@@ -196,17 +195,17 @@ func (api *API) respondCreateEntry(ctx context.Context, msgBytes []byte) error {
 		sec.Set("user", message.Login)
 	}
 	if err := api.Store.Set(ctx, message.Name, sec); err != nil {
-		return errors.Wrapf(err, "failed to store secret")
+		return fmt.Errorf("failed to store secret: %w", err)
 	}
 
-	return sendSerializedJSONMessage(loginResponse{
+	return sendJSONResponse(loginResponse{
 		Username: message.Login,
 		Password: message.Password,
 	}, api.Writer)
 }
 
 func (api *API) respondGetVersion() error {
-	return sendSerializedJSONMessage(getVersionMessage{
+	return sendJSONResponse(getVersionMessage{
 		Version: api.Version.String(),
 		Major:   api.Version.Major,
 		Minor:   api.Version.Minor,
@@ -217,12 +216,12 @@ func (api *API) respondGetVersion() error {
 func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) error {
 	var message copyToClipboard
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
-		return errors.Wrapf(err, "failed to unmarshal JSON message")
+		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")
 	if err != nil {
-		return errors.Wrapf(err, "failed to get secret")
+		return fmt.Errorf("failed to get secret: %w", err)
 	}
 	var val string
 	if message.Key == "" {
@@ -236,10 +235,10 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 	}
 
 	if err := clipboard.CopyTo(ctx, message.Entry, []byte(val), 30); err != nil {
-		return errors.Wrapf(err, "failed to copy to clipboard")
+		return fmt.Errorf("failed to copy to clipboard: %w", err)
 	}
 
-	return sendSerializedJSONMessage(statusResponse{
+	return sendJSONResponse(statusResponse{
 		Status: "ok",
 	}, api.Writer)
 }

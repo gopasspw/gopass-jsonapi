@@ -2,6 +2,7 @@ package jsonapi
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/blang/semver"
@@ -17,20 +18,34 @@ type API struct {
 	Version semver.Version
 }
 
-// ReadAndRespond a single message
-func (api *API) ReadAndRespond(ctx context.Context) error {
-	ctx = ctxutil.WithHidden(ctx, true)
-	message, err := readMessage(api.Reader)
-	if message == nil || err != nil {
-		return err
+// New creates a new instance of the JSON API
+func New(s gopass.Store, r io.Reader, w io.Writer, v semver.Version) *API {
+	return &API{
+		Store:   s,
+		Reader:  r,
+		Writer:  w,
+		Version: v,
 	}
-
-	return api.respondMessage(ctx, message)
 }
 
-// RespondError sends err as JSON response
-func (api *API) RespondError(err error) error {
-	return sendSerializedJSONMessage(errorResponse{
+// ServeMessage a single message
+func (api *API) ServeMessage(ctx context.Context) error {
+	ctx = ctxutil.WithHidden(ctx, true)
+
+	req, err := readRequest(api.Reader)
+	if req == nil || err != nil {
+		if err == nil && req == nil {
+			err = fmt.Errorf("request message is nil")
+		}
+		return api.sendErrorResponse(err)
+	}
+
+	return api.sendResponse(ctx, req)
+}
+
+// sendErrorResponse sends err as JSON response
+func (api *API) sendErrorResponse(err error) error {
+	return sendJSONResponse(errorResponse{
 		Error: err.Error(),
 	}, api.Writer)
 }

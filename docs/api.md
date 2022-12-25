@@ -1,4 +1,4 @@
-## API Overview
+# API Overview
 
 The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
 Each JSON-UTF8 encoded message is prefixed with a 32-bit integer specifying the length of the message.
@@ -11,7 +11,7 @@ Communication is performed via stdin/stdout.
 
 ### `query`
 
-#### Query:
+#### Request
 
 ```json
 {
@@ -20,7 +20,7 @@ Communication is performed via stdin/stdout.
 }
 ```
 
-#### Response:
+#### Response
 
 ```json
 [
@@ -33,7 +33,7 @@ Communication is performed via stdin/stdout.
 
 Similar to `query` but cuts hostnames and subdomains from the left side until the response to the query is non-empty. Stops if only the [public suffix](https://publicsuffix.org/) is remaining.
 
-#### Query:
+#### Request
 
 ```json
 {
@@ -42,7 +42,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 }
 ```
 
-#### Response:
+#### Response
 
 ```json
 [
@@ -53,7 +53,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 
 ### `getLogin`
 
-#### Query:
+#### Request
 
 ```json
 {
@@ -62,7 +62,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 }
 ```
 
-#### Response:
+#### Response
 
 ```json
 {
@@ -73,7 +73,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 
 ### `create`
 
-#### Query:
+#### Request
 
 ```json
 {
@@ -86,7 +86,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 }
 ```
 
-#### Response:
+#### Response
 
 ```json
 {

@@ -48,6 +48,8 @@ func TestRespondGetVersion(t *testing.T) {
 }
 
 func newSec(t *testing.T, in string) gopass.Secret {
+	t.Helper()
+
 	debug.Log("in: %s", in)
 	sec, err := secparse.Parse([]byte(in))
 	require.NoError(t, err)
@@ -147,7 +149,6 @@ login_fields: "invalid"`)},
 			runRespondMessage(t, tc.in, tc.out, "", secrets)
 		})
 	}
-
 }
 
 func TestRespondMessageGetData(t *testing.T) {
@@ -300,11 +301,15 @@ func writeMessageWithLength(message string) string {
 }
 
 func runRespondMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string, secrets []storedSecret) {
+	t.Helper()
+
 	inputMessageStr := writeMessageWithLength(inputStr)
 	runRespondRawMessage(t, inputMessageStr, outputRegexpStr, errorStr, secrets)
 }
 
 func runRespondRawMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string, secrets []storedSecret) {
+	t.Helper()
+
 	runRespondRawMessages(t, []verifiedRequest{{inputStr, outputRegexpStr, errorStr}}, secrets)
 }
 
@@ -315,6 +320,8 @@ type verifiedRequest struct {
 }
 
 func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
+	t.Helper()
+
 	for i, request := range requests {
 		requests[i].InputStr = writeMessageWithLength(request.InputStr)
 	}
@@ -322,6 +329,8 @@ func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []stor
 }
 
 func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
+	t.Helper()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -331,26 +340,22 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 	require.NotNil(t, store)
 	assert.NoError(t, populateStore(ctx, store, secrets))
 
+	v := semver.MustParse("1.2.3-test")
+
 	for _, request := range requests {
 		var inbuf bytes.Buffer
 		var outbuf bytes.Buffer
 
-		api := API{
-			store,
-			&inbuf,
-			&outbuf,
-			semver.MustParse("1.2.3-test"),
-		}
-
 		_, err := inbuf.Write([]byte(request.InputStr))
 		assert.NoError(t, err)
 
-		err = api.ReadAndRespond(ctx)
+		err = New(store, &inbuf, &outbuf, v).ServeMessage(ctx)
 		if len(request.ErrorStr) > 0 {
-			require.Error(t, err)
+			require.Error(t, err, request.InputStr)
 			assert.Equal(t, len(outbuf.String()), 0)
 			continue
 		}
+
 		assert.NoError(t, err)
 		outputMessage := readAndVerifyMessageLength(t, outbuf.Bytes())
 		assert.NotEqual(t, "", request.OutputRegexpStr, "Empty string would match any output")
@@ -368,6 +373,8 @@ func populateStore(ctx context.Context, s gopass.Store, secrets []storedSecret) 
 }
 
 func readAndVerifyMessageLength(t *testing.T, rawMessage []byte) string {
+	t.Helper()
+
 	input := bytes.NewReader(rawMessage)
 	lenBytes := make([]byte, 4)
 
