@@ -35,9 +35,9 @@ func (s *jsonapiCLI) listen(c *cli.Context) error {
 		version = semver.Version{}
 	}
 
-	api := jsonapi.API{Store: s.gp, Reader: stdin, Writer: stdout, Version: version}
-	if err := api.ReadAndRespond(ctx); err != nil {
-		return api.RespondError(err)
+	api := jsonapi.New(s.gp, stdin, stdout, version)
+	if api.ServeMessage(ctx); err != nil {
+		return api.SendErrorResponse(err)
 	}
 
 	return nil

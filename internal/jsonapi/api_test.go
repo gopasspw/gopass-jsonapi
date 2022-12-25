@@ -28,8 +28,6 @@ type storedSecret struct {
 }
 
 func TestRespondMessageBrokenInput(t *testing.T) {
-	t.Parallel()
-
 	// Garbage input
 	runRespondRawMessage(t, "1234Xabcd", "", "incomplete message read", []storedSecret{})
 
@@ -331,6 +329,7 @@ func runRespondMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string,
 
 func runRespondRawMessage(t *testing.T, inputStr, outputRegexpStr, errorStr string, secrets []storedSecret) {
 	t.Helper()
+
 	runRespondRawMessages(t, []verifiedRequest{{inputStr, outputRegexpStr, errorStr}}, secrets)
 }
 
@@ -350,6 +349,7 @@ func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []stor
 
 func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
 	t.Helper()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -371,7 +371,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 		_, err := inbuf.Write([]byte(request.InputStr))
 		assert.NoError(t, err)
 
-		err = api.ReadAndRespond(ctx)
+		err = api.ServeMessage(ctx)
 		if len(request.ErrorStr) > 0 {
 			require.Error(t, err)
 			assert.Equal(t, len(outbuf.String()), 0)
