@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"runtime"
 	"sort"
+
+	"golang.org/x/exp/maps"
 )
 
 var (
@@ -30,11 +32,9 @@ func ValidBrowser(name string) bool {
 
 // ValidBrowsers are all browsers for which the manifest can be currently installed
 func ValidBrowsers() []string {
-	keys := make([]string, 0, len(registryPaths))
-	for k := range registryPaths {
-		keys = append(keys, k)
-	}
+	keys := maps.Keys(registryPaths)
 	sort.Strings(keys)
+
 	return keys
 }
 

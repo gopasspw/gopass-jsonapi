@@ -24,29 +24,32 @@ var (
 	nowFunc = time.Now
 )
 
-func (api *API) respondMessage(ctx context.Context, msgBytes []byte) error {
-	var message messageType
-	if err := json.Unmarshal(msgBytes, &message); err != nil {
+// sendResponse unmarshals the payload twice. First into a generic struct to
+// determine the exact request type and then again into the proper request
+// struct with all the necessary fields.
+func (api *API) sendResponse(ctx context.Context, buf []byte) error {
+	msg := &messageType{}
+	if err := json.Unmarshal(buf, msg); err != nil {
 		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
-	switch message.Type {
+	switch msg.Type {
 	case "query":
-		return api.respondQuery(ctx, msgBytes)
+		return api.respondQuery(ctx, buf)
 	case "queryHost":
-		return api.respondHostQuery(ctx, msgBytes)
+		return api.respondHostQuery(ctx, buf)
 	case "getLogin":
-		return api.respondGetLogin(ctx, msgBytes)
+		return api.respondGetLogin(ctx, buf)
 	case "getData":
-		return api.respondGetData(ctx, msgBytes)
+		return api.respondGetData(ctx, buf)
 	case "create":
-		return api.respondCreateEntry(ctx, msgBytes)
+		return api.respondCreateEntry(ctx, buf)
 	case "copyToClipboard":
-		return api.respondCopyToClipboard(ctx, msgBytes)
+		return api.respondCopyToClipboard(ctx, buf)
 	case "getVersion":
 		return api.respondGetVersion()
 	default:
-		return fmt.Errorf("unknown message of type %s", message.Type)
+		return fmt.Errorf("unknown message of type %s", msg.Type)
 	}
 }
 
@@ -77,7 +80,7 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 		}
 	}
 
-	return sendSerializedJSONMessage(choices, api.Writer)
+	return sendResponse(choices, api.Writer)
 }
 
 func (api *API) respondQuery(ctx context.Context, msgBytes []byte) error {
@@ -97,7 +100,7 @@ func (api *API) respondQuery(ctx context.Context, msgBytes []byte) error {
 		return fmt.Errorf("failed to append search results: %w", err)
 	}
 
-	return sendSerializedJSONMessage(choices, api.Writer)
+	return sendResponse(choices, api.Writer)
 }
 
 func searchAndAppendChoices(reQuery string, list []string, choices *[]string) error {
@@ -126,7 +129,7 @@ func (api *API) respondGetLogin(ctx context.Context, msgBytes []byte) error {
 		return fmt.Errorf("failed to get secret: %w", err)
 	}
 
-	return sendSerializedJSONMessage(loginResponse{
+	return sendResponse(loginResponse{
 		Username: api.getUsername(message.Entry, sec),
 		Password: sec.Password(),
 	}, api.Writer)
@@ -174,7 +177,7 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 
 	converted := convertMixedMapInterfaces(interface{}(responseData))
 
-	return sendSerializedJSONMessage(converted, api.Writer)
+	return sendResponse(converted, api.Writer)
 }
 
 func (api *API) getUsername(name string, sec gopass.Secret) string {
@@ -217,14 +220,14 @@ func (api *API) respondCreateEntry(ctx context.Context, msgBytes []byte) error {
 		return fmt.Errorf("failed to store secret: %w", err)
 	}
 
-	return sendSerializedJSONMessage(loginResponse{
+	return sendResponse(loginResponse{
 		Username: message.Login,
 		Password: message.Password,
 	}, api.Writer)
 }
 
 func (api *API) respondGetVersion() error {
-	return sendSerializedJSONMessage(getVersionMessage{
+	return sendResponse(getVersionMessage{
 		Version: api.Version.String(),
 		Major:   api.Version.Major,
 		Minor:   api.Version.Minor,
@@ -258,7 +261,7 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 		return fmt.Errorf("failed to copy to clipboard: %w", err)
 	}
 
-	return sendSerializedJSONMessage(statusResponse{
+	return sendResponse(statusResponse{
 		Status: "ok",
 	}, api.Writer)
 }

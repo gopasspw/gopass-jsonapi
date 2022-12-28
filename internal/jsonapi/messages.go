@@ -65,7 +65,7 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
-func readMessage(r io.Reader) ([]byte, error) {
+func readRequest(r io.Reader) ([]byte, error) {
 	input := bufio.NewReader(r)
 	lenBytes := make([]byte, 4)
 	count, err := input.Read(lenBytes)
@@ -112,33 +112,27 @@ func eofReturn(err error) error {
 	return err
 }
 
-func sendSerializedJSONMessage(message interface{}, w io.Writer) error {
+func sendResponse(msg any, w io.Writer) error {
 	// we can't use json.NewEncoder(w).Encode because we need to send the final
 	// message length before the actual JSON
-	serialized, err := json.Marshal(message)
+	buf, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
 
-	if err := writeMessageLength(serialized, w); err != nil {
+	if err := writeMessageLength(buf, w); err != nil {
 		return err
 	}
 
-	var msgBuf bytes.Buffer
-	count, err := msgBuf.Write(serialized)
+	n, err := w.Write(buf)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to write message: %w", err)
 	}
-	if count != len(serialized) {
-		return fmt.Errorf("message not fully written")
-	}
-
-	wcount, err := msgBuf.WriteTo(w)
-	if wcount != int64(len(serialized)) {
-		return fmt.Errorf("message not fully written")
+	if n != len(buf) {
+		return fmt.Errorf("message not fully written (wrote %d of %d)", n, len(buf))
 	}
 
-	return err
+	return nil
 }
 
 func writeMessageLength(msg []byte, w io.Writer) error {

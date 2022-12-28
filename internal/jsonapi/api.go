@@ -17,20 +17,30 @@ type API struct {
 	Version semver.Version
 }
 
-// ReadAndRespond a single message.
-func (api *API) ReadAndRespond(ctx context.Context) error {
+// New creates a new instance of the JSON API.
+func New(s gopass.Store, r io.Reader, w io.Writer, v semver.Version) *API {
+	return &API{
+		Store:   s,
+		Reader:  r,
+		Writer:  w,
+		Version: v,
+	}
+}
+
+// ServeMessage processes a single message.
+func (api *API) ServeMessage(ctx context.Context) error {
 	ctx = ctxutil.WithHidden(ctx, true)
-	message, err := readMessage(api.Reader)
-	if message == nil || err != nil {
+	msg, err := readRequest(api.Reader)
+	if msg == nil || err != nil {
 		return err
 	}
 
-	return api.respondMessage(ctx, message)
+	return api.sendResponse(ctx, msg)
 }
 
-// RespondError sends err as JSON response.
-func (api *API) RespondError(err error) error {
-	return sendSerializedJSONMessage(errorResponse{
+// SendErrorResponse sends err as JSON response.
+func (api *API) SendErrorResponse(err error) error {
+	return sendResponse(errorResponse{
 		Error: err.Error(),
 	}, api.Writer)
 }

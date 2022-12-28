@@ -34,9 +34,16 @@ exit $?
 )
 
 func TestWrapperContent(t *testing.T) {
-	t.Parallel()
+	idf := isDirFn
+	defer func() {
+		isDirFn = idf
+	}()
 
-	b, err := getWrapperContent("gopass-jsonapi")
+	isDirFn = func(_ string) bool {
+		return false
+	}
+
+	b, err := renderWrapperContent("gopass-jsonapi")
 	require.NoError(t, err)
 	assert.Equal(t, wrapperGolden, string(b))
 }
