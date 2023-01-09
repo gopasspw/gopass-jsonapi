@@ -50,7 +50,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = name
-	app.Version = version
+	app.Version = getVersion().String()
 	app.Usage = "Setup and run gopass-jsonapi as native messaging hosts, e.g. for browser plugins"
 	app.EnableBashCompletion = true
 	app.Action = func(c *cli.Context) error {
@@ -108,6 +108,14 @@ func main() {
 					Usage: "Print installation summary before creating any files",
 					Value: true,
 				},
+			},
+		},
+		{
+			Name: "version",
+			Action: func(c *cli.Context) error {
+				cli.VersionPrinter(c)
+
+				return nil
 			},
 		},
 	}
