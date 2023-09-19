@@ -93,6 +93,7 @@ As fallback, the last part of the path is used, e.g. `theuser1` for `Internet/gi
 - Vivaldi
 - Iridium
 - Slimjet
+- Librewolf
 
 ### Windows
 
