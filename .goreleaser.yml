@@ -64,15 +64,15 @@ nfpms:
     maintainer: "Gopass Authors <gopass@gopass.pw>"
     description: |-
       gopass password manager - full featured CLI replacement for pass, designed for teams.
+      # TODO: Disabled until goreleaser is fixed, see goreleaser/nfpm#742
+      # gopass is a simple but powerful password manager for your terminal. It is a
+      # Pass implementation in Go that can be used as a drop in replacement.
 
-      gopass is a simple but powerful password manager for your terminal. It is a
-      Pass implementation in Go that can be used as a drop in replacement.
+      # Every secret lives inside of a gpg (or: age) encrypted textfile. These secrets
+      # can be organized into meaninful hierachies and are by default versioned using
+      # git.
 
-      Every secret lives inside of a gpg (or: age) encrypted textfile. These secrets
-      can be organized into meaninful hierachies and are by default versioned using
-      git.
-
-      This package contains JSON API for the gopassbridge browser extension.
+      # This package contains JSON API for the gopassbridge browser extension.
     license: MIT
     formats:
       - deb
