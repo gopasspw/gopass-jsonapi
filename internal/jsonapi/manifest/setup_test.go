@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRender(t *testing.T) {
@@ -33,7 +34,7 @@ func TestRender(t *testing.T) {
     ]
 }`
 	w, m, err := Render("chrome", binDir, "gopass-jsonapi", true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, wrapperGolden, string(w))
 	assert.Equal(t, manifestGolden, string(m))
 }
@@ -42,16 +43,16 @@ func TestValidBrowser(t *testing.T) {
 	t.Parallel()
 
 	for _, b := range []string{"chrome", "chromium", "firefox"} {
-		assert.Equal(t, true, ValidBrowser(b))
+		assert.True(t, ValidBrowser(b))
 	}
 }
 
 func TestValidBrowsers(t *testing.T) {
 	t.Parallel()
 
+	validBrowsers := []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
 	if runtime.GOOS == "windows" {
-		assert.Equal(t, []string{"chrome", "chromium", "firefox"}, ValidBrowsers())
-	} else {
-		assert.Equal(t, []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}, ValidBrowsers())
+		validBrowsers = []string{"chrome", "chromium", "firefox"}
 	}
+	assert.Equal(t, validBrowsers, ValidBrowsers())
 }
