@@ -9,6 +9,7 @@ var manifestPaths = &manifestPath{
 		"vivaldi":  "~/Library/Application Support/Vivaldi/NativeMessagingHosts",
 		"iridium":  "~/Library/Application Support/Iridium/NativeMessagingHosts",
 		"slimjet":  "~/Library/Application Support/Slimjet/NativeMessagingHosts",
+		"arc": 	    "~/Library/Application Support/Arc/User Data/NativeMessagingHosts",
 	},
 	global: map[string]string{
 		"firefox":  "/Library/Application Support/Mozilla/NativeMessagingHosts",
