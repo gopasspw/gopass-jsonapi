@@ -59,3 +59,5 @@ require (
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/kbinani/screenshot => github.com/kbinani/screenshot v0.0.0-20240809173157-e060a1ebcc6b
