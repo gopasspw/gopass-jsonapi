@@ -54,5 +54,8 @@ func TestValidBrowsers(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		validBrowsers = []string{"chrome", "chromium", "firefox"}
 	}
-	assert.Equal(t, validBrowsers, ValidBrowsers())
+	if runtime.GOOS == "darwin" {
+		validBrowsers = append(validBrowsers, "arc")
+	}
+	assert.ElementsMatch(t, validBrowsers, ValidBrowsers())
 }

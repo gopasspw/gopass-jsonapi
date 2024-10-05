@@ -148,7 +148,6 @@ login_fields: "invalid"`)},
 			out:  `{"username":"thelogin","password":"thepass"}`,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 
