@@ -50,7 +50,7 @@ func TestValidBrowser(t *testing.T) {
 func TestValidBrowsers(t *testing.T) {
 	t.Parallel()
 
-	validBrowsers := []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
+	validBrowsers := []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
 	if runtime.GOOS == "windows" {
 		validBrowsers = []string{"chrome", "chromium", "firefox"}
 	}
