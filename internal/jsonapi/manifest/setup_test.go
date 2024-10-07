@@ -50,12 +50,18 @@ func TestValidBrowser(t *testing.T) {
 func TestValidBrowsers(t *testing.T) {
 	t.Parallel()
 
-	validBrowsers := []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
-	if runtime.GOOS == "windows" {
+	var validBrowsers []string
+
+	switch runtime.GOOS {
+	case "darwin": // macOS
+		validBrowsers = []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
+	case "windows": // Windows
 		validBrowsers = []string{"chrome", "chromium", "firefox"}
+	case "linux": // Linux
+		validBrowsers = []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
+	default: // Fallback, not suppoerted OS
+		t.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}
-	if runtime.GOOS == "darwin" {
-		validBrowsers = append(validBrowsers, "arc")
-	}
-	assert.ElementsMatch(t, validBrowsers, ValidBrowsers())
+
+	assert.Equal(t, validBrowsers, ValidBrowsers())
 }
