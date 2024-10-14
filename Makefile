@@ -88,6 +88,9 @@ crosscompile:
 	@echo -n ">> CROSSCOMPILE darwin/amd64"
 	@GOOS=darwin GOARCH=amd64 $(GO) build -o $(GOPASS_OUTPUT)-darwin-amd64
 	@printf '%s\n' '$(OK)'
+	@echo -n ">> CROSSCOMPILE freebsd/amd64"
+	@GOOS=freebsd GOARCH=amd64 $(GO) build -o $(GOPASS_OUTPUT)-freebsd-amd64
+	@printf '%s\n' '$(OK)'
 	@echo -n ">> CROSSCOMPILE windows/amd64"
 	@GOOS=windows GOARCH=amd64 $(GO) build -o $(GOPASS_OUTPUT)-windows-amd64
 	@printf '%s\n' '$(OK)'
