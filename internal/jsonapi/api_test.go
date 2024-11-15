@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -371,7 +370,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 		require.NoError(t, err)
 		outputMessage := readAndVerifyMessageLength(t, outbuf.Bytes())
 		assert.NotEqual(t, "", request.OutputRegexpStr, "Empty string would match any output")
-		assert.Regexp(t, regexp.MustCompile(request.OutputRegexpStr), outputMessage)
+		assert.Regexp(t, request.OutputRegexpStr, outputMessage)
 	}
 }
 
