@@ -27,7 +27,6 @@ func TestGetUsername(t *testing.T) {
 			Out:  "foo",
 		},
 	} {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.Out, a.getUsername(tc.Name, tc.Sec), "Wrong Username")

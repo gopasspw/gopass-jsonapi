@@ -20,7 +20,7 @@ var (
 		"firefox":  `Software\Mozilla\NativeMessagingHosts\` + Name,
 		"chrome":   `Software\Google\Chrome\NativeMessagingHosts\` + Name,
 		"chromium": `Software\Google\Chrome\NativeMessagingHosts\` + Name,
-		"brave":    `Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\` + Name,
+		"brave":    `Software\Google\Chrome\NativeMessagingHosts\` + Name,
 	}
 )
 
