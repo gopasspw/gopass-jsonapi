@@ -47,6 +47,14 @@ The jsonapi setup copies the current gopass-jsonapi binary as a wrapper executab
 It is recommended to run `gopass-jsonapi configure` after each **update** to have the latest version setup for your browser.
 The **global** setup requires to run `gopass-jsonapi configure` as Administrator.
 
+**FreeBSD**:
+
+To build on FreeBSD, ensure that you use `gmake` (GNU Make) instead of the default `make`. You can install it using the following command:
+
+```sh
+pkg install gmake
+```
+
 ## Usage
 
 Gopass allows filling in passwords in browsers leveraging a browser plugin like [gopassbridge](https://github.com/gopasspw/gopassbridge).
@@ -100,6 +108,14 @@ As fallback, the last part of the path is used, e.g. `theuser1` for `Internet/gi
 - Chrome
 - Chromium
 - Brave
+
+### FreeBSD
+
+- Firefox
+- Chrome
+- Chromium
+- Ungoogled Chromium
+- Iridium
 
 ## Contributing
 
