@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19
-      - uses: actions/checkout@v3
+          go-version: 1.23
+      - uses: actions/checkout@v4
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest # we have a list of linters in our .golangci.yml config file
           only-new-issues: true

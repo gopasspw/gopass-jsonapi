@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -148,7 +147,6 @@ login_fields: "invalid"`)},
 			out:  `{"username":"thelogin","password":"thepass"}`,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -180,7 +178,7 @@ sub:
 
 	two, err := otp.Calculate("_", totpSecret)
 	if err != nil {
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 	token, err := totp.GenerateCodeCustom(two.Secret(), nowFunc(), totp.ValidateOpts{
 		Period:    uint(two.Period()),
@@ -347,7 +345,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 
 	store := apimock.New()
 	require.NotNil(t, store)
-	assert.NoError(t, populateStore(ctx, store, secrets))
+	require.NoError(t, populateStore(ctx, store, secrets))
 
 	v, err := semver.Parse("1.2.3-test")
 	require.NoError(t, err)
@@ -358,21 +356,21 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 
 		api := New(store, &inbuf, &outbuf, v)
 
-		_, err := inbuf.Write([]byte(request.InputStr))
-		assert.NoError(t, err)
+		_, err := inbuf.WriteString(request.InputStr)
+		require.NoError(t, err)
 
 		err = api.ServeMessage(ctx)
 		if len(request.ErrorStr) > 0 {
 			require.Error(t, err)
-			assert.Equal(t, len(outbuf.String()), 0)
+			assert.Empty(t, outbuf.String())
 
 			continue
 		}
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		outputMessage := readAndVerifyMessageLength(t, outbuf.Bytes())
 		assert.NotEqual(t, "", request.OutputRegexpStr, "Empty string would match any output")
-		assert.Regexp(t, regexp.MustCompile(request.OutputRegexpStr), outputMessage)
+		assert.Regexp(t, request.OutputRegexpStr, outputMessage)
 	}
 }
 
@@ -393,15 +391,15 @@ func readAndVerifyMessageLength(t *testing.T, rawMessage []byte) string {
 	lenBytes := make([]byte, 4)
 
 	_, err := input.Read(lenBytes)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	length, err := getMessageLength(lenBytes)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, len(rawMessage)-4, length)
 
 	msgBytes := make([]byte, length)
 	_, err = input.Read(msgBytes)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	return string(msgBytes)
 }

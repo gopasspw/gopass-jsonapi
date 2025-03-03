@@ -15,18 +15,18 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
         name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 1.23
       -
         name: Import GPG signing key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v5
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
@@ -51,10 +51,10 @@ jobs:
           go run helpers/changelog/main.go >../RELEASE_NOTES
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4.3.0
+        uses: goreleaser/goreleaser-action@v6.2.1
         with:
           version: latest
-          args: release --rm-dist --release-notes=../RELEASE_NOTES
+          args: release --release-notes=../RELEASE_NOTES
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

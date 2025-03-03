@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRender(t *testing.T) {
@@ -33,7 +34,7 @@ func TestRender(t *testing.T) {
     ]
 }`
 	w, m, err := Render("chrome", binDir, "gopass-jsonapi", true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, wrapperGolden, string(w))
 	assert.Equal(t, manifestGolden, string(m))
 }
@@ -42,16 +43,27 @@ func TestValidBrowser(t *testing.T) {
 	t.Parallel()
 
 	for _, b := range []string{"chrome", "chromium", "firefox"} {
-		assert.Equal(t, true, ValidBrowser(b))
+		assert.True(t, ValidBrowser(b))
 	}
 }
 
 func TestValidBrowsers(t *testing.T) {
 	t.Parallel()
 
-	if runtime.GOOS == "windows" {
-		assert.Equal(t, []string{"chrome", "chromium", "firefox"}, ValidBrowsers())
-	} else {
-		assert.Equal(t, []string{"brave", "chrome", "chromium", "firefox", "iridium", "librewolf", "slimjet", "vivaldi"}, ValidBrowsers())
+	var validBrowsers []string
+
+	switch runtime.GOOS {
+	case "darwin": // macOS
+		validBrowsers = []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "librewolf", "slimjet", "vivaldi"}
+	case "windows": // Windows
+		validBrowsers = []string{"chrome", "chromium", "firefox"}
+	case "linux": // Linux
+		validBrowsers = []string{"brave", "chrome", "chromium", "firefox", "iridium", "librewolf", "slimjet", "vivaldi"}
+	case "freebsd": // FreeBSD
+		validBrowsers = []string{"chrome", "chromium", "ungoogled-chromium", "firefox", "iridium", "librewolf"}
+	default: // Fallback, not suppoerted OS
+		t.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}
+
+	assert.Equal(t, validBrowsers, ValidBrowsers())
 }

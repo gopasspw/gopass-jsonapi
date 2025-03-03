@@ -39,6 +39,8 @@ func renaderManifestContent(browser, wrapperPath string) ([]byte, error) {
 		fallthrough
 	case "chromium":
 		return newChromeManifest(wrapperPath).Format()
+	case "ungoogled-chromium":
+		return newChromeManifest(wrapperPath).Format()
 	default:
 		return nil, fmt.Errorf("no manifest template for browser %s", browser)
 	}
