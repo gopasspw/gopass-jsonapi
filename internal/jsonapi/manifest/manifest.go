@@ -25,6 +25,8 @@ func renaderManifestContent(browser, wrapperPath string) ([]byte, error) {
 	switch browser {
 	case "firefox":
 		return newFirefoxManifest(wrapperPath).Format()
+	case "librewolf":
+		return newFirefoxManifest(wrapperPath).Format()
 	case "chrome":
 		fallthrough
 	case "brave":
