@@ -27,7 +27,7 @@ func TestRender(t *testing.T) {
 	manifestGolden := `{
     "name": "com.justwatch.gopass",
     "description": "Gopass wrapper to search and return passwords",
-    "path": "` + strings.Replace(binDir, "\\", "\\\\", -1) + `",
+    "path": "` + strings.ReplaceAll(binDir, "\\", "\\\\") + `",
     "type": "stdio",
     "allowed_origins": [
         "chrome-extension://kkhfnlkhiapbiehimabddjbimfaijdhk/"

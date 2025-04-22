@@ -340,7 +340,7 @@ func runRespondMessages(t *testing.T, requests []verifiedRequest, secrets []stor
 func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []storedSecret) {
 	t.Helper()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	store := apimock.New()
@@ -369,7 +369,7 @@ func runRespondRawMessages(t *testing.T, requests []verifiedRequest, secrets []s
 
 		require.NoError(t, err)
 		outputMessage := readAndVerifyMessageLength(t, outbuf.Bytes())
-		assert.NotEqual(t, "", request.OutputRegexpStr, "Empty string would match any output")
+		assert.NotEmpty(t, request.OutputRegexpStr, "Empty string would match any output")
 		assert.Regexp(t, request.OutputRegexpStr, outputMessage)
 	}
 }
