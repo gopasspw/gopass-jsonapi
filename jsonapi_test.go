@@ -11,7 +11,7 @@ import (
 )
 
 func TestJSONAPI(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	ctx = ctxutil.WithAlwaysYes(ctx, true)

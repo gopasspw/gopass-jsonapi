@@ -3,6 +3,7 @@
 #
 # Build customization
 project_name: gopass-jsonapi
+version: 2
 
 before:
   hooks:
@@ -41,10 +42,10 @@ builds:
 archives:
   - id: gopass-jsonapi
     name_template: "{{.Binary}}-{{.Version}}-{{.Os}}-{{.Arch}}{{ if .Arm }}v{{.Arm }}{{ end }}"
-    format: tar.gz
+    formats: ['tar.gz']
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ['zip']
     files:
       - CHANGELOG.md
       - LICENSE
