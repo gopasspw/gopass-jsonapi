@@ -17,7 +17,7 @@ func (m manifestPath) Global(browser, libpath string) (string, error) {
 		return "", err
 	}
 
-	if browser == "firefox" && libpath != "" {
+	if (browser == "firefox" || browser == "librewolf") && libpath != "" {
 		return filepath.Join(libpath, path), nil
 	}
 
