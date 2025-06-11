@@ -54,13 +54,13 @@ func TestValidBrowsers(t *testing.T) {
 
 	switch runtime.GOOS {
 	case "darwin": // macOS
-		validBrowsers = []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
+		validBrowsers = []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "librewolf", "slimjet", "vivaldi"}
 	case "windows": // Windows
 		validBrowsers = []string{"chrome", "chromium", "firefox"}
 	case "linux": // Linux
-		validBrowsers = []string{"brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
+		validBrowsers = []string{"brave", "chrome", "chromium", "firefox", "iridium", "librewolf", "slimjet", "vivaldi"}
 	case "freebsd": // FreeBSD
-		validBrowsers = []string{"chrome", "chromium", "ungoogled-chromium", "firefox", "iridium"}
+		validBrowsers = []string{"chrome", "chromium", "ungoogled-chromium", "firefox", "iridium", "librewolf"}
 	default: // Fallback, not suppoerted OS
 		t.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}
