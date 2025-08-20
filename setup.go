@@ -38,7 +38,7 @@ func (s *jsonapiCLI) getGlobalInstall(ctx context.Context, c *cli.Context) (bool
 }
 
 func (s *jsonapiCLI) getLibPath(ctx context.Context, c *cli.Context, browser string, global bool) (string, error) {
-	if !c.IsSet("libpath") && runtime.GOOS == "linux" && browser == "firefox" && global {
+	if !c.IsSet("libpath") && runtime.GOOS == "linux" && (browser == "firefox" || browser == "librewolf") && global {
 		return termio.AskForString(ctx, color.BlueString("What is your lib path?"), "/usr/lib")
 	}
 
