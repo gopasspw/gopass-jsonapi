@@ -23,6 +23,8 @@ var (
 
 func renaderManifestContent(browser, wrapperPath string) ([]byte, error) {
 	switch browser {
+	case "floorp":
+		fallthrough
 	case "firefox":
 		return newFirefoxManifest(wrapperPath).Format()
 	case "chrome":
