@@ -1,12 +1,12 @@
 module github.com/gopasspw/gopass-jsonapi
 
-go 1.25
+go 1.24.1
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/blang/semver/v4 v4.0.0
 	github.com/fatih/color v1.18.0
-	github.com/gopasspw/gopass v1.15.17
+	github.com/gopasspw/gopass v1.15.18
 	github.com/pquerna/otp v1.5.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
@@ -29,10 +29,11 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gen2brain/shm v0.1.1 // indirect
+	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/gopasspw/clipboard v0.0.3 // indirect
-	github.com/gopasspw/gitconfig v0.0.3-0.20250819161336-9ff4f059ac1d // indirect
+	github.com/gopasspw/gitconfig v0.0.3 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
