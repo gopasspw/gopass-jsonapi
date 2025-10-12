@@ -203,13 +203,21 @@ func (api *API) getUsername(name string, sec gopass.Secret) string {
 }
 
 func (api *API) getPassword(ctx context.Context, sec gopass.Secret) (string, error) {
+	return api.getPasswordWithDepthCounter(ctx, sec, 0)
+}
+
+func (api *API) getPasswordWithDepthCounter(ctx context.Context, sec gopass.Secret, depth int) (string, error) {
+	if depth >= 10 {
+		return "", fmt.Errorf("failed to follow secret refrencing, it is too depth")
+	}
+
 	if ref, ok := sec.Ref(); ok {
 		sec, err := api.Store.Get(ctx, ref, "latest")
 		if err != nil {
 			return "", fmt.Errorf("failed to get secret: %w", err)
 		}
 
-		return api.getPassword(ctx, sec)
+		return api.getPasswordWithDepthCounter(ctx, sec, depth+1)
 	}
 
 	return sec.Password(), nil
