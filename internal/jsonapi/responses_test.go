@@ -1,7 +1,6 @@
 package jsonapi
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -40,7 +39,7 @@ func TestGetUsername(t *testing.T) {
 func TestGetPassword(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("without referencing - simple password", func(t *testing.T) {
 		t.Parallel()
