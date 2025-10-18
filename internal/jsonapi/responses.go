@@ -129,9 +129,14 @@ func (api *API) respondGetLogin(ctx context.Context, msgBytes []byte) error {
 		return fmt.Errorf("failed to get secret: %w", err)
 	}
 
+	pass, err := api.getPassword(ctx, sec)
+	if err != nil {
+		return fmt.Errorf("failed to read the password: %w", err)
+	}
+
 	return sendResponse(loginResponse{
 		Username: api.getUsername(message.Entry, sec),
-		Password: sec.Password(),
+		Password: pass,
 	}, api.Writer)
 }
 
@@ -197,6 +202,27 @@ func (api *API) getUsername(name string, sec gopass.Secret) string {
 	return ""
 }
 
+func (api *API) getPassword(ctx context.Context, sec gopass.Secret) (string, error) {
+	return api.getPasswordWithDepthCounter(ctx, sec, 0)
+}
+
+func (api *API) getPasswordWithDepthCounter(ctx context.Context, sec gopass.Secret, depth int) (string, error) {
+	if depth >= 10 {
+		return "", fmt.Errorf("failed to follow secret refrencing, it is too depth")
+	}
+
+	if ref, ok := sec.Ref(); ok {
+		sec, err := api.Store.Get(ctx, ref, "latest")
+		if err != nil {
+			return "", fmt.Errorf("failed to get secret: %w", err)
+		}
+
+		return api.getPasswordWithDepthCounter(ctx, sec, depth+1)
+	}
+
+	return sec.Password(), nil
+}
+
 func (api *API) respondCreateEntry(ctx context.Context, msgBytes []byte) error {
 	var message createEntryMessage
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
@@ -248,7 +274,10 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 
 	var val string
 	if message.Key == "" {
-		val = sec.Password()
+		val, err = api.getPassword(ctx, sec)
+		if err != nil {
+			return fmt.Errorf("failed to read the password: %w", err)
+		}
 	} else {
 		val, _ = sec.Get(message.Key)
 	}
