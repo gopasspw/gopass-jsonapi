@@ -187,7 +187,7 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 
 func (api *API) getUsername(name string, sec gopass.Secret) string {
 	// look for a meta-data entry containing the username first
-	for _, key := range []string{"login", "username", "user"} {
+	for _, key := range []string{"login", "username", "user", "email"} {
 		if v, ok := sec.Get(key); ok && v != "" {
 			return v
 		}

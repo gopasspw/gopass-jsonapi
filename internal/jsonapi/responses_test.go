@@ -28,6 +28,16 @@ func TestGetUsername(t *testing.T) {
 			Sec:  newSec(t, "thesecret\n---\nlogin: foo"),
 			Out:  "foo",
 		},
+		{
+			Name: "some/key/withemail",
+			Sec:  newSec(t, "thesecret\n---\nemail: emailasusername"),
+			Out:  "emailasusername",
+		},
+		{
+			Name: "some/key/withuserandemail",
+			Sec:  newSec(t, "thesecret\n---\nemail: myemail\nuser: usertakespriority"),
+			Out:  "usertakespriority",
+		},
 	} {
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
