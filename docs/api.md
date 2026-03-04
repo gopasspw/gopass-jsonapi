@@ -1,6 +1,6 @@
 # API Overview
 
-The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
+The API follows the specification for native messaging from [Mozilla](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging) and [Chrome](https://developer.chrome.com/apps/nativeMessaging).
 Each JSON-UTF8 encoded message is prefixed with a 32-bit integer specifying the length of the message.
 Communication is performed via stdin/stdout.
 

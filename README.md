@@ -60,7 +60,7 @@ pkg install gmake
 Gopass allows filling in passwords in browsers leveraging a browser plugin like [gopassbridge](https://github.com/gopasspw/gopassbridge).
 The browser plugin communicates with gopass-jsonapi via JSON messages.
 To allow the plugin to interact with gopass-jsonapi,
-a [native messaging manifest](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) must be installed for each browser.
+a [native messaging manifest](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging) must be installed for each browser.
 
 This native extension and the gopassbrigde plugin currently only support the *Connectionless messaging* with [`runtime.sendNativeMessage`](https://github.com/gopasspw/gopassbridge/blob/master/web-extension/generic.js#L54), i.e.
 the `gopass-jsonapi` will be started for every single message from the brower plugin.
