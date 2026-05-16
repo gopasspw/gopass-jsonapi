@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/gopasspw/gopass/pkg/ctxutil"
-	"github.com/gopasspw/gopass/tests/gptest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
 
 func TestJSONAPI(t *testing.T) {
@@ -18,9 +18,9 @@ func TestJSONAPI(t *testing.T) {
 
 	act := &jsonapiCLI{}
 
-	require.NoError(t, act.listen(gptest.CliCtx(ctx, t)))
+	require.NoError(t, act.listen(ctx, &cli.Command{}))
 
-	b, err := act.getBrowser(ctx, gptest.CliCtx(ctx, t))
+	b, err := act.getBrowser(ctx, &cli.Command{})
 	require.NoError(t, err)
 	assert.Equal(t, "chrome", b)
 }

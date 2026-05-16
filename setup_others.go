@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,15 +12,13 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi/manifest"
-	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/gopass/api"
 	"github.com/gopasspw/gopass/pkg/termio"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // setup sets up manifest for gopass as native messaging host.
-func (s *jsonapiCLI) setup(c *cli.Context) error {
-	ctx := ctxutil.WithGlobalFlags(c)
+func (s *jsonapiCLI) setup(ctx context.Context, c *cli.Command) error {
 	browser, err := s.getBrowser(ctx, c)
 	if err != nil {
 		return fmt.Errorf("failed to get browser: %w", err)

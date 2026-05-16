@@ -1,14 +1,14 @@
 package main
 
 import (
+	"context"
 	"os"
 	"strings"
 
 	"github.com/blang/semver"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi"
-	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/gopass"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var (
@@ -21,10 +21,8 @@ type jsonapiCLI struct {
 }
 
 // listen reads a json message on stdin and responds on stdout.
-func (s *jsonapiCLI) listen(c *cli.Context) error {
-	ctx := ctxutil.WithGlobalFlags(c)
-
-	version, err := semver.Parse(strings.TrimPrefix(c.App.Version, "v"))
+func (s *jsonapiCLI) listen(ctx context.Context, c *cli.Command) error {
+	version, err := semver.Parse(strings.TrimPrefix(c.Root().Version, "v"))
 	if err != nil {
 		version = semver.Version{}
 	}

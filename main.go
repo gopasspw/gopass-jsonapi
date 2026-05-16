@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/gopasspw/gopass/pkg/gopass/api"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -48,14 +48,14 @@ func main() {
 		gp: gp,
 	}
 
-	app := cli.NewApp()
+	app := &cli.Command{}
 	app.Name = name
 	app.Version = getVersion().String()
 	app.Usage = "Setup and run gopass-jsonapi as native messaging hosts, e.g. for browser plugins"
-	app.EnableBashCompletion = true
-	app.Action = func(c *cli.Context) error {
+	app.EnableShellCompletion = true
+	app.Action = func(ctx context.Context, c *cli.Command) error {
 		if strings.HasSuffix(os.Args[0], "native_host") || strings.HasSuffix(os.Args[0], "native_host.exe") {
-			return ja.listen(c)
+			return ja.listen(ctx, c)
 		}
 
 		return cli.ShowAppHelp(c)
@@ -67,16 +67,16 @@ func main() {
 			Usage:       "Listen and respond to messages via stdin/stdout",
 			Description: "Gopass-jsonapi is started in listen mode from browser plugins using a wrapper specified in native messaging host manifests",
 			Hidden:      true,
-			Action: func(c *cli.Context) error {
-				return ja.listen(c)
+			Action: func(ctx context.Context, c *cli.Command) error {
+				return ja.listen(ctx, c)
 			},
 		},
 		{
 			Name:        "configure",
 			Usage:       "Setup gopass-jsonapi native messaging manifest for selected browser",
 			Description: "To access gopass from browser plugins, a native app manifest must be installed at the correct location",
-			Action: func(c *cli.Context) error {
-				return ja.setup(c)
+			Action: func(ctx context.Context, c *cli.Command) error {
+				return ja.setup(ctx, c)
 			},
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -112,7 +112,7 @@ func main() {
 		},
 		{
 			Name: "version",
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				cli.VersionPrinter(c)
 
 				return nil
@@ -120,7 +120,7 @@ func main() {
 		},
 	}
 
-	if err := app.RunContext(ctx, os.Args); err != nil {
+	if err := app.Run(ctx, os.Args); err != nil {
 		log.Fatal(err)
 	}
 }

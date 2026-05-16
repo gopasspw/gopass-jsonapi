@@ -9,10 +9,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/gopasspw/gopass-jsonapi/internal/jsonapi/manifest"
 	"github.com/gopasspw/gopass/pkg/termio"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
-func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Context) (string, error) {
+func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Command) (string, error) {
 	browser := c.String("browser")
 	if browser != "" {
 		return browser, nil
@@ -29,7 +29,7 @@ func (s *jsonapiCLI) getBrowser(ctx context.Context, c *cli.Context) (string, er
 	return browser, nil
 }
 
-func (s *jsonapiCLI) getGlobalInstall(ctx context.Context, c *cli.Context) (bool, error) {
+func (s *jsonapiCLI) getGlobalInstall(ctx context.Context, c *cli.Command) (bool, error) {
 	if !c.IsSet("global") {
 		return termio.AskForBool(ctx, color.BlueString("Install for all users? (might require sudo gopass)"), false)
 	}
@@ -37,7 +37,7 @@ func (s *jsonapiCLI) getGlobalInstall(ctx context.Context, c *cli.Context) (bool
 	return c.Bool("global"), nil
 }
 
-func (s *jsonapiCLI) getLibPath(ctx context.Context, c *cli.Context, browser string, global bool) (string, error) {
+func (s *jsonapiCLI) getLibPath(ctx context.Context, c *cli.Command, browser string, global bool) (string, error) {
 	if !c.IsSet("libpath") && runtime.GOOS == "linux" && (browser == "firefox" || browser == "floorp") && global {
 		return termio.AskForString(ctx, color.BlueString("What is your lib path?"), "/usr/lib")
 	}
@@ -45,7 +45,7 @@ func (s *jsonapiCLI) getLibPath(ctx context.Context, c *cli.Context, browser str
 	return c.String("libpath"), nil
 }
 
-func (s *jsonapiCLI) getWrapperPath(ctx context.Context, c *cli.Context, defaultWrapperPath string, wrapperName string) (string, error) {
+func (s *jsonapiCLI) getWrapperPath(ctx context.Context, c *cli.Command, defaultWrapperPath string, wrapperName string) (string, error) {
 	if path := c.String("path"); path != "" {
 		return path, nil
 	}
