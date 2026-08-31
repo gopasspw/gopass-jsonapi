@@ -1,6 +1,6 @@
 module github.com/gopasspw/gopass-jsonapi
 
-go 1.26.0
+go 1.25.0
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
@@ -10,7 +10,7 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/stretchr/testify v1.12.1
 	github.com/urfave/cli/v3 v3.11.0
-	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa
+	golang.org/x/exp v0.0.0-20260209203927-2842357ff358
 	golang.org/x/net v0.58.0
 	golang.org/x/sys v0.47.0
 )
