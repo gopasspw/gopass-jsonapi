@@ -1,59 +1,53 @@
 module github.com/gopasspw/gopass-jsonapi
 
-go 1.24.1
+go 1.26.0
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/blang/semver/v4 v4.0.0
-	github.com/fatih/color v1.18.0
-	github.com/gopasspw/gopass v1.16.1
+	github.com/fatih/color v1.19.0
+	github.com/gopasspw/gopass v1.17.0
 	github.com/pquerna/otp v1.5.0
-	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.9.0
-	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9
-	golang.org/x/net v0.48.0
-	golang.org/x/sys v0.39.0
+	github.com/stretchr/testify v1.12.1
+	github.com/urfave/cli/v3 v3.11.0
+	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa
+	golang.org/x/net v0.58.0
+	golang.org/x/sys v0.47.0
 )
 
 require (
-	al.essio.dev/pkg/shellescape v1.6.0 // indirect
-	filippo.io/age v1.2.1 // indirect
-	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/ProtonMail/go-crypto v1.3.0 // indirect
+	filippo.io/age v1.3.2 // indirect
+	filippo.io/edwards25519 v1.2.0 // indirect
+	filippo.io/hpke v0.4.0 // indirect
+	filippo.io/nistec v0.0.4 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/caspr-io/yamlpath v0.0.0-20200722075116-502e8d113a9b // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
+	github.com/cloudflare/circl v1.6.5 // indirect
 	github.com/danieljoos/wincred v1.2.3 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/gen2brain/shm v0.1.1 // indirect
-	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/godbus/dbus/v5 v5.2.0 // indirect
+	github.com/gen2brain/shm v0.2.2 // indirect
+	github.com/gobwas/glob v1.0.0 // indirect
+	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/gopasspw/clipboard v0.0.4 // indirect
-	github.com/gopasspw/gitconfig v0.0.3 // indirect
+	github.com/gopasspw/clipboard v0.0.5-0.20260524141134-6b387ae5aa1a // indirect
+	github.com/gopasspw/gitconfig v0.0.4 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
-	github.com/jezek/xgb v1.2.0 // indirect
+	github.com/jezek/xgb v1.3.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kbinani/screenshot v0.0.0-20250624051815-089614a94018 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/makiuchi-d/gozxing v0.1.1 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/muesli/crunchy v0.4.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/twpayne/go-pinentry/v4 v4.0.0 // indirect
-	github.com/urfave/cli/v2 v2.27.7 // indirect
+	github.com/twpayne/go-pinentry/v4 v4.0.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
-	github.com/zalando/go-keyring v0.2.6 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	github.com/zalando/go-keyring v0.2.8 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
