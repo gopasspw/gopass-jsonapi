@@ -44,13 +44,17 @@ jobs:
         disable-sudo: true
         egress-policy: block
         allowed-endpoints: >
-          api.github.com:443
           github.com:443
           objects.githubusercontent.com:443
           proxy.golang.org:443
           raw.githubusercontent.com:443
           storage.googleapis.com:443
           sum.golang.org:443
+          golang.org:443
+          go.dev:443
+          azure.archive.ubuntu.com:443
+          archive.ubuntu.com:443
+          security.ubuntu.com:443
 
     - name: Checkout repository
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
