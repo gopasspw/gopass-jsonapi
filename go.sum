@@ -45,14 +45,12 @@ github.com/golang/mock v1.6.0/go.mod h1:p6yTPP+5HYm5mzsMV8JkE6ZKdX+/wYM6Hr+Licev
 github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/gopasspw/clipboard v0.0.5-0.20260524141134-6b387ae5aa1a h1:L7qDnmetJ62Fr59V/8Rrhb5l1+TdrmxORyHJ/WNlwdg=
-github.com/gopasspw/clipboard v0.0.5-0.20260524141134-6b387ae5aa1a/go.mod h1:i0cShr7JEbOXZ/iKM5RyfBLbu1FPzouO8BTCJy0uHy8=
+github.com/gopasspw/clipboard v0.0.5 h1:vwp7PlntZuvgc1CZDz2GxRnaStNhwmBN5PALdRkHGQY=
+github.com/gopasspw/clipboard v0.0.5/go.mod h1:i0cShr7JEbOXZ/iKM5RyfBLbu1FPzouO8BTCJy0uHy8=
 github.com/gopasspw/gitconfig v0.0.4 h1:7JE0iTm92OdXCtkS33CnbqcAEqQXYWTUriYFf3sRTBk=
 github.com/gopasspw/gitconfig v0.0.4/go.mod h1:W5AHsZgCbBRsc8TnElO82GYflOz/l2dIndncymoCv+A=
-github.com/gopasspw/gopass v1.17.2 h1:9ATqQtKApqZS2+qjoEbl+9esUT6oy3FuntEf6Y5/Z5w=
-github.com/gopasspw/gopass v1.17.2/go.mod h1:hXQVanPKZ8dJExckO0lo+tovEdwiGZCi2HIEjq6rB+I=
-github.com/gopasspw/gopass-hibp v1.17.0 h1:H7OFo4VrB0S7oC10QxBYiLLJLPM7QLOXIR3xn4N23q4=
-github.com/gopasspw/gopass-hibp v1.17.0/go.mod h1:KXUcLJWdQvnvT89SV2QEDeqOOOEbj5T0I3f9VetXr/k=
+github.com/gopasspw/gopass v1.17.3 h1:mcrRYPf4ueAUCELDChqkEcMsr929CH5xiTD9jnovX5Y=
+github.com/gopasspw/gopass v1.17.3/go.mod h1:29y7rYOqA9NuylLQ2RM2ZZEARnsPr0wXBzYrpEqmnpI=
 github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
 github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUqJM=
@@ -65,8 +63,6 @@ github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 h1:Z9n2FFNU
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
 github.com/kbinani/screenshot v0.0.0-20250624051815-089614a94018 h1:NQYgMY188uWrS+E/7xMVpydsI48PMHcc7SfR4OxkDF4=
 github.com/kbinani/screenshot v0.0.0-20250624051815-089614a94018/go.mod h1:Pmpz2BLf55auQZ67u3rvyI2vAQvNetkK/4zYUmpauZQ=
-github.com/kjk/lzmadec v0.0.0-20210713164611-19ac3ee91a71 h1:TYp9Fj0apeZMWentXRaFM6B0ixdFefrlgY8n8XYEz1s=
-github.com/kjk/lzmadec v0.0.0-20210713164611-19ac3ee91a71/go.mod h1:2zRkQCuw/eK6cqkYAeNqyBU7JKa2Gcq40BZ9GSJbmfE=
 github.com/klauspost/cpuid/v2 v2.3.0 h1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzhA9Y=
 github.com/klauspost/cpuid/v2 v2.3.0/go.mod h1:hqwkgyIinND0mEev00jJYCxPNVRVXFQeu1XKlok6oO0=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e h1:H+t6A/QJMbhCSEH5rAuRxh+CtW96g0Or0Fxa9IKr4uc=
