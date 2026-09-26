@@ -9,7 +9,7 @@ require (
 	github.com/gopasspw/gopass v1.17.3
 	github.com/pquerna/otp v1.5.0
 	github.com/stretchr/testify v1.12.1
-	github.com/urfave/cli/v3 v3.11.0
+	github.com/urfave/cli/v3 v3.12.0
 	golang.org/x/exp v0.0.0-20260209203927-2842357ff358
 	golang.org/x/net v0.59.0
 	golang.org/x/sys v0.48.0
