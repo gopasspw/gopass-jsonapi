@@ -26,6 +26,7 @@ all: build
 build: $(GOPASS_OUTPUT)
 gha-linux: sysinfo crosscompile build test codequality
 gha-osx: sysinfo build test
+gha-windows: sysinfo build test
 
 sysinfo:
 	@echo ">> SYSTEM INFORMATION"
