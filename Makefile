@@ -26,6 +26,7 @@ all: build
 build: $(GOPASS_OUTPUT)
 gha-linux: sysinfo crosscompile build test codequality
 gha-osx: sysinfo build test
+gha-windows: sysinfo build test
 
 sysinfo:
 	@echo ">> SYSTEM INFORMATION"
@@ -105,7 +106,7 @@ codequality:
 
 	@echo -n "     GOLANGCI-LINT "
 	@which golangci-lint > /dev/null; if [ $$? -ne 0 ]; then \
-		$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.1; \
+		$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1; \
 	fi
 	@golangci-lint run --max-issues-per-linter 0 --max-same-issues 0 || exit 1
 
