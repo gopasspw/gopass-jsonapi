@@ -12,6 +12,8 @@
   - `api.go`: Defines the main API structure and the message-serving loop.
   - `messages.go`: Defines the structure of incoming JSON requests from clients.
   - `responses.go`: Defines the structure of outgoing JSON responses.
+  - `passkey.go`: Implements the passkey (WebAuthn) requests on top of `github.com/gopasspw/gopass/pkg/passkey`.
+  - `consent.go`: Asks the user to approve the creation or the use of a passkey with a pinentry dialog.
   - `manifest/`: Contains logic for creating and installing the native messaging manifests required by browsers.
 - `docs/api.md`: The official documentation for the JSON API, detailing the request and response formats for different actions like `query`, `getLogin`, etc.
 - `Makefile`: Contains various targets for building, testing, formatting, and linting the code.

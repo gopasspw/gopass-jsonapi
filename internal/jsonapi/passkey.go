@@ -1,0 +1,237 @@
+package jsonapi
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+
+	"github.com/gopasspw/gopass/pkg/passkey"
+)
+
+// passkeyOrigin describes the document a WebAuthn request comes from. It
+// must be determined by the browser extension, never taken from the page.
+type passkeyOrigin struct {
+	Origin      string `json:"origin"`
+	CrossOrigin bool   `json:"cross_origin"`
+	TopOrigin   string `json:"top_origin"`
+}
+
+func (o passkeyOrigin) origin() passkey.Origin {
+	return passkey.Origin{
+		Origin:      o.Origin,
+		CrossOrigin: o.CrossOrigin,
+		TopOrigin:   o.TopOrigin,
+	}
+}
+
+type passkeyCreateMessage struct {
+	passkeyOrigin
+
+	Options *passkey.CreationOptions `json:"options"`
+}
+
+type passkeyQueryMessage struct {
+	passkeyOrigin
+
+	Options *passkey.RequestOptions `json:"options"`
+}
+
+type passkeyGetMessage struct {
+	passkeyOrigin
+
+	Options      *passkey.RequestOptions `json:"options"`
+	CredentialID passkey.Base64URL       `json:"credential_id"`
+}
+
+type passkeyCreateResponse struct {
+	Entry      string                        `json:"entry"`
+	Credential *passkey.RegistrationResponse `json:"credential"`
+	// Warning is set if the passkey was stored, but the store reported a
+	// failure afterwards, e.g. because it could not push to its remote.
+	Warning string `json:"warning,omitempty"`
+}
+
+type passkeyCandidate struct {
+	ID              passkey.Base64URL `json:"id"`
+	Entry           string            `json:"entry"`
+	UserName        string            `json:"user_name"`
+	UserDisplayName string            `json:"user_display_name"`
+}
+
+type passkeyQueryResponse struct {
+	Credentials []passkeyCandidate `json:"credentials"`
+}
+
+type passkeyGetResponse struct {
+	Entry      string                          `json:"entry"`
+	Credential *passkey.AuthenticationResponse `json:"credential"`
+	// Warning is set if the signature counter of the passkey was stored, but
+	// the store reported a failure afterwards.
+	Warning string `json:"warning,omitempty"`
+}
+
+// passkeyErrorResponse is the response to a failed WebAuthn ceremony.
+type passkeyErrorResponse struct {
+	// Error is the reason of the failure. It is meant for the user and must
+	// not be passed on to the web page.
+	Error string `json:"error"`
+	// ErrorName is the name of the DOMException to reject the promise of the
+	// WebAuthn API with.
+	ErrorName string `json:"error_name"`
+	// Fallback is true if the request should be handed to another
+	// authenticator: gopass has no matching passkey or is not suitable.
+	Fallback bool `json:"fallback"`
+}
+
+// errorMessage returns the response to send for an error.
+func errorMessage(err error) any {
+	var pe *passkey.Error
+	if errors.As(err, &pe) {
+		return passkeyErrorResponse{
+			Error:     err.Error(),
+			ErrorName: string(pe.Name),
+			Fallback:  passkey.IsFallback(err),
+		}
+	}
+
+	return errorResponse{
+		Error: err.Error(),
+	}
+}
+
+// warning returns the warning of a ceremony that succeeded.
+func warning(entry *passkey.Entry) string {
+	if entry.Warning == nil {
+		return ""
+	}
+
+	return entry.Warning.Error()
+}
+
+// authenticator returns the WebAuthn authenticator backed by the store.
+func (api *API) authenticator(ctx context.Context) *passkey.Authenticator {
+	var consent passkey.ConsentFunc
+	if api.Confirm != nil {
+		consent = passkey.ConsentByConfirmation(api.Confirm)
+	}
+
+	return passkey.NewAuthenticator(passkey.NewStore(ctx, api.Store), consent)
+}
+
+// errDisconnected is the cause of a ceremony that ended because the browser
+// closed the connection.
+var errDisconnected = errors.New("the browser closed the connection")
+
+// untilDisconnected returns a context that is cancelled when the input ends,
+// i.e. when the browser closes the connection.
+//
+// A browser keeps the input of a native messaging host open until it has the
+// response. It closes it when nobody waits for the response anymore: when
+// the extension disconnects the port it sent the request through, e.g.
+// because the web page aborted the call, or when the browser shuts the host
+// down. It does not wait long for the host to exit then, and it kills
+// neither the processes the host started nor, if the host runs behind a
+// wrapper script, the host itself. A ceremony that is waiting for the user
+// has to end, and to take its dialog down.
+func (api *API) untilDisconnected(ctx context.Context) (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancelCause(ctx)
+
+	go func() {
+		// The host answers a single request. Anything that arrives after
+		// it is not read by anyone and can be dropped.
+		_, _ = io.Copy(io.Discard, api.Reader)
+		cancel(errDisconnected)
+	}()
+
+	return ctx, func() { cancel(nil) }
+}
+
+// respondPasskeyCreate performs a registration ceremony: it creates and
+// stores a new passkey.
+func (api *API) respondPasskeyCreate(ctx context.Context, msgBytes []byte) error {
+	var message passkeyCreateMessage
+	if err := json.Unmarshal(msgBytes, &message); err != nil {
+		return &passkey.Error{Name: passkey.TypeError, Err: fmt.Errorf("failed to unmarshal JSON message: %w", err)}
+	}
+
+	ctx, cancel := api.untilDisconnected(ctx)
+	defer cancel()
+
+	rsp, entry, err := api.authenticator(ctx).Register(ctx, message.origin(), message.Options)
+	if err != nil {
+		return err
+	}
+
+	return sendResponse(passkeyCreateResponse{
+		Entry:      entry.Name,
+		Credential: rsp,
+		Warning:    warning(entry),
+	}, api.Writer)
+}
+
+// respondPasskeyQuery lists the passkeys that can be used to answer an
+// authentication request, so that the user can pick one.
+func (api *API) respondPasskeyQuery(ctx context.Context, msgBytes []byte) error {
+	var message passkeyQueryMessage
+	if err := json.Unmarshal(msgBytes, &message); err != nil {
+		return &passkey.Error{Name: passkey.TypeError, Err: fmt.Errorf("failed to unmarshal JSON message: %w", err)}
+	}
+
+	// The request is checked in the same order as passkeyGet does, so that
+	// both fail the same way.
+	entries, err := api.authenticator(ctx).Candidates(ctx, message.origin(), message.Options)
+	if err != nil {
+		return err
+	}
+
+	// Do not let the user pick a passkey for a request that passkeyGet is
+	// going to refuse. Every ceremony is subject to the rule of
+	// passkey.ConsentByConfirmation (see authenticator): the user is asked
+	// to confirm, which is not a verification.
+	if message.Options.UserVerification == "required" && !passkey.UserVerificationEnabled(ctx) {
+		return &passkey.Error{
+			Name: passkey.NotAllowedError,
+			Err: fmt.Errorf("%w: the site requires user verification, which gopass only reports if passkey.user-verification is enabled",
+				passkey.ErrUnsuitable),
+		}
+	}
+
+	candidates := make([]passkeyCandidate, 0, len(entries))
+	for _, e := range entries {
+		candidates = append(candidates, passkeyCandidate{
+			ID:              e.Credential.ID,
+			Entry:           e.Name,
+			UserName:        e.Credential.UserName,
+			UserDisplayName: e.Credential.UserDisplayName,
+		})
+	}
+
+	return sendResponse(passkeyQueryResponse{
+		Credentials: candidates,
+	}, api.Writer)
+}
+
+// respondPasskeyGet performs an authentication ceremony: it signs the
+// challenge of a relying party with a stored passkey.
+func (api *API) respondPasskeyGet(ctx context.Context, msgBytes []byte) error {
+	var message passkeyGetMessage
+	if err := json.Unmarshal(msgBytes, &message); err != nil {
+		return &passkey.Error{Name: passkey.TypeError, Err: fmt.Errorf("failed to unmarshal JSON message: %w", err)}
+	}
+
+	ctx, cancel := api.untilDisconnected(ctx)
+	defer cancel()
+
+	rsp, entry, err := api.authenticator(ctx).Authenticate(ctx, message.origin(), message.Options, message.CredentialID)
+	if err != nil {
+		return err
+	}
+
+	return sendResponse(passkeyGetResponse{
+		Entry:      entry.Name,
+		Credential: rsp,
+		Warning:    warning(entry),
+	}, api.Writer)
+}
