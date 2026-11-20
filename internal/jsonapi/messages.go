@@ -1,7 +1,6 @@
 package jsonapi
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
@@ -65,15 +64,21 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
+// maxMessageSize is the largest request that is accepted. Requests of
+// browser extensions are far smaller than that.
+const maxMessageSize = 16 << 20
+
 func readRequest(r io.Reader) ([]byte, error) {
-	input := bufio.NewReader(r)
+	// A read may return less than what was asked for, e.g. if a message is
+	// larger than a buffer of the pipe it comes through. Read until the
+	// header and the message are complete.
 	lenBytes := make([]byte, 4)
-	count, err := input.Read(lenBytes)
-	if err != nil {
+	if _, err := io.ReadFull(r, lenBytes); err != nil {
+		if errors.Is(err, io.ErrUnexpectedEOF) {
+			return nil, fmt.Errorf("not enough bytes read to determine message size")
+		}
+
 		return nil, eofReturn(err)
-	}
-	if count != 4 {
-		return nil, fmt.Errorf("not enough bytes read to determine message size")
 	}
 
 	length, err := getMessageLength(lenBytes)
@@ -81,14 +86,17 @@ func readRequest(r io.Reader) ([]byte, error) {
 		return nil, err
 	}
 
-	msgBytes := make([]byte, length)
-	count, err = input.Read(msgBytes)
-	if err != nil {
-		return nil, eofReturn(err)
+	if length < 0 || length > maxMessageSize {
+		return nil, fmt.Errorf("message of %d bytes is too large", length)
 	}
 
-	if count != length {
-		return nil, fmt.Errorf("incomplete message read")
+	msgBytes := make([]byte, length)
+	if _, err := io.ReadFull(r, msgBytes); err != nil {
+		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+			return nil, fmt.Errorf("incomplete message read")
+		}
+
+		return nil, err
 	}
 
 	return msgBytes, nil
