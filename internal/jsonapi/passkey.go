@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
+	"github.com/gopasspw/gopass/pkg/gopass"
 	"github.com/gopasspw/gopass/pkg/passkey"
 )
 
@@ -117,7 +119,27 @@ func (api *API) authenticator(ctx context.Context) *passkey.Authenticator {
 		consent = passkey.ConsentByConfirmation(api.Confirm)
 	}
 
-	return passkey.NewAuthenticator(passkey.NewStore(ctx, api.Store), consent)
+	return passkey.NewAuthenticator(passkey.NewStore(ctx, nativePasskeyStore{api.Store}), consent)
+}
+
+const passkeyWriteTimeout = 2 * time.Minute
+
+// nativePasskeyStore keeps an already started write alive when the browser
+// disconnects. Set writes the encrypted file and commits it to Git inline
+// in the native host. Cancelling partway through could leave it uncommitted.
+type nativePasskeyStore struct {
+	passkey.SecretStore
+}
+
+func (s nativePasskeyStore) Set(ctx context.Context, name string, sec gopass.Byter) error {
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("not starting passkey write: %w", err)
+	}
+
+	writeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), passkeyWriteTimeout)
+	defer cancel()
+
+	return s.SecretStore.Set(writeCtx, name, sec) //nolint:wrapcheck
 }
 
 // errDisconnected is the cause of a ceremony that ended because the browser

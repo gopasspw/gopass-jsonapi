@@ -655,6 +655,79 @@ func TestPasskeyDisconnect(t *testing.T) {
 	assert.Equal(t, []string{"passkeys/example.com/alice"}, names)
 }
 
+type storeWithSetHook struct {
+	gopass.Store
+	beforeSet func(context.Context)
+}
+
+func (s storeWithSetHook) Set(ctx context.Context, name string, sec gopass.Byter) error {
+	s.beforeSet(ctx)
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	return s.Store.Set(ctx, name, sec)
+}
+
+func TestPasskeyDisconnectDuringWrite(t *testing.T) {
+	for _, operation := range []string{"register", "advance counter"} {
+		t.Run(operation, func(t *testing.T) {
+			pt := newPasskeyTester(t)
+			t.Setenv("GOPASS_CONFIG_NOSYSTEM", "true")
+			cfgDir := filepath.Join(os.Getenv("GOPASS_HOMEDIR"), ".config", "gopass")
+			require.NoError(t, os.MkdirAll(cfgDir, 0o700))
+			require.NoError(t, os.WriteFile(filepath.Join(cfgDir, "config"), []byte("[passkey]\n\tsigncount = true\n"), 0o600))
+
+			msg := passkeyCreate
+			wantCount := uint32(1)
+			if operation == "advance counter" {
+				require.NotContains(t, pt.send(passkeyCreate), "error")
+				msg = `{"type": "passkeyGet", "origin": "https://example.com", "options": ` + passkeyGetOptions + `}`
+				wantCount++
+			}
+
+			in, hangUp := connect(msg)
+			defer hangUp()
+
+			var (
+				out         bytes.Buffer
+				approvalCtx context.Context
+			)
+			ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+			defer cancel()
+
+			store := storeWithSetHook{pt.store, func(writeCtx context.Context) {
+				hangUp()
+				<-approvalCtx.Done()
+				require.ErrorIs(t, context.Cause(approvalCtx), errDisconnected)
+				require.NoError(t, writeCtx.Err())
+				deadline, bounded := writeCtx.Deadline()
+				assert.True(t, bounded)
+				assert.Greater(t, time.Until(deadline), 5*time.Second)
+				assert.LessOrEqual(t, time.Until(deadline), passkeyWriteTimeout)
+			}}
+			api := New(store, in, &out, semver.MustParse("1.2.3"))
+			api.Confirm = func(ctx context.Context, _ passkey.ConsentRequest) (bool, error) {
+				approvalCtx = ctx
+
+				return true, nil
+			}
+
+			err := api.ServeMessage(ctx)
+			require.ErrorIs(t, err, context.Canceled)
+			assert.Equal(t, passkey.NotAllowedError, passkey.NameOf(err))
+			assert.Empty(t, out.Bytes())
+
+			sec, err := pt.store.Get(t.Context(), "passkeys/example.com/alice", "latest")
+			require.NoError(t, err)
+			creds, err := passkey.FromSecret(sec)
+			require.NoError(t, err)
+			require.Len(t, creds, 1)
+			assert.Equal(t, wantCount, creds[0].SignCount)
+		})
+	}
+}
+
 func TestPasskeyWithoutDialog(t *testing.T) {
 	pt := newPasskeyTester(t)
 	require.NotContains(t, pt.send(passkeyCreate), "error")

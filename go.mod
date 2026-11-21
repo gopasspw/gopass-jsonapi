@@ -73,4 +73,4 @@ require (
 
 // Temporary: the passkey API of gopass is not released yet. Remove this with
 // the gopass release that includes https://github.com/gopasspw/gopass/pull/3709
-replace github.com/gopasspw/gopass => github.com/pedro757/gopass v1.17.5-0.20261120200323-b08b05580037
+replace github.com/gopasspw/gopass => github.com/pedro757/gopass v1.17.5-0.20261121010634-677ddaac66a7

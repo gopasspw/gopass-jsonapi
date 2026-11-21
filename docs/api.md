@@ -120,6 +120,7 @@ Similar to `query` but cuts hostnames and subdomains from the left side until th
 The three requests below let a browser extension answer the calls a web page makes to `navigator.credentials.create()` and `navigator.credentials.get()`.
 
 The `options` of the requests are the `publicKey` options of the web page in their JSON form, i.e. [`PublicKeyCredentialCreationOptionsJSON`](https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialcreationoptionsjson) and [`PublicKeyCredentialRequestOptionsJSON`](https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialrequestoptionsjson): all binary values are base64url encoded without padding.
+Before forwarding options intercepted from JavaScript, the extension must normalize `timeout` to an unsigned 32-bit integer and `pubKeyCredParams[].alg` to a signed 32-bit integer, as Web IDL does. Send these as JSON integers, not strings or fractional numbers. In JavaScript, `value >>> 0` and `value | 0` respectively perform those conversions; leave an omitted `timeout` out of the request.
 The `credential` of the responses is what `PublicKeyCredential.toJSON()` returns, i.e. [`RegistrationResponseJSON`](https://www.w3.org/TR/webauthn-3/#dictdef-registrationresponsejson) and [`AuthenticationResponseJSON`](https://www.w3.org/TR/webauthn-3/#dictdef-authenticationresponsejson). It includes the `clientDataJSON`, which is assembled by `gopass-jsonapi`.
 
 Each request names the document that made the call:
@@ -146,6 +147,8 @@ The private key of a passkey never leaves `gopass-jsonapi`. The other requests d
 No passkey is created or used without the consent of the user. `gopass-jsonapi` asks for it itself, with the `pinentry` program that is also used to ask for passphrases, so that neither a web page nor the extension can sign in on behalf of the user unnoticed. The requests `passkeyCreate` and `passkeyGet` therefore block until the user answered, until the `timeout` of the options has passed, or until the browser closes the connection. The timeout is at least 5 and at most 10 minutes. If there is no way to ask the user, e.g. because there is no `pinentry` or it can not show a dialog, the requests fail with `fallback` set.
 
 A browser keeps the connection to `gopass-jsonapi` open until it has the response. If it closes the connection before, the request ends without a response and the dialog is taken down. An extension that wants to be able to cancel a request, e.g. because the web page passed an `AbortSignal` or went away, sends the request with `runtime.connectNative()` and disconnects the port to cancel it. `runtime.sendNativeMessage()` offers no way to do so. In either case `gopass-jsonapi` answers a single message.
+
+If an approved request has already started writing a passkey or updating its signature counter, a disconnect still suppresses the response but does not interrupt the write. The write has its own two-minute deadline.
 
 A confirmation shows that the user is present. It does not verify who the user is, so the `UV` flag is not set and requests that require user verification fail with `fallback` set, unless the user enabled the gopass config option `passkey.user-verification`. See the [gopass documentation](https://github.com/gopasspw/gopass/blob/master/docs/commands/passkey.md) for details and for how passkeys are stored.
 
