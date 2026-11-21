@@ -33,6 +33,8 @@ Communication is performed via stdin/stdout.
 
 Similar to `query` but cuts hostnames and subdomains from the left side until the response to the query is non-empty. Stops if only the [public suffix](https://publicsuffix.org/) is remaining.
 
+`queryHost` omits entries in `passkeys/<rp-id>/<account>` directories (including mounted stores) and under the configured `passkey.prefix`. Those entries typically have no password to autofill. The general `query` still lists them; use `passkeyQuery` to find passkeys for a WebAuthn request.
+
 #### Request
 
 ```json
@@ -147,6 +149,10 @@ The private key of a passkey never leaves `gopass-jsonapi`. The other requests d
 No passkey is created or used without the consent of the user. `gopass-jsonapi` asks for it itself, with the `pinentry` program that is also used to ask for passphrases, so that neither a web page nor the extension can sign in on behalf of the user unnoticed. The requests `passkeyCreate` and `passkeyGet` therefore block until the user answered, until the `timeout` of the options has passed, or until the browser closes the connection. The timeout is at least 5 and at most 10 minutes. If there is no way to ask the user, e.g. because there is no `pinentry` or it can not show a dialog, the requests fail with `fallback` set.
 
 A browser keeps the connection to `gopass-jsonapi` open until it has the response. If it closes the connection before, the request ends without a response and the dialog is taken down. An extension that wants to be able to cancel a request, e.g. because the web page passed an `AbortSignal` or went away, sends the request with `runtime.connectNative()` and disconnects the port to cancel it. `runtime.sendNativeMessage()` offers no way to do so. In either case `gopass-jsonapi` answers a single message.
+
+For manual testing, redirect a framed request from a regular file (`gopass-jsonapi listen < request.bin`). EOF from a regular file does not cancel the request, unlike EOF from a browser pipe. Existing browser installations can rerun `gopass-jsonapi configure` to regenerate the wrapper so it forwards browser termination directly to the native host.
+
+The browser needs a graphical pinentry; the host does not pass a terminal to the confirmation process. If the configured or PATH pinentry cannot be found, the host tries the one reported by `gpgconf`, then `pinentry` in GnuPG's `libexecdir`.
 
 If an approved request has already started writing a passkey or updating its signature counter, a disconnect still suppresses the response but does not interrupt the write. The write has its own two-minute deadline.
 

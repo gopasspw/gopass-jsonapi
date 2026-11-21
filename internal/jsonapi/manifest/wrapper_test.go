@@ -27,9 +27,7 @@ fi
 
 export PATH="$PATH:/usr/local/bin"
 
-gopass-jsonapi listen
-
-exit $?
+exec gopass-jsonapi listen
 `
 )
 

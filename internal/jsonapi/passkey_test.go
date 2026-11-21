@@ -644,8 +644,7 @@ func TestPasskeyDisconnect(t *testing.T) {
 		err := api.ServeMessage(ctx)
 		cancel()
 
-		require.ErrorIs(t, err, errDisconnected, msg)
-		assert.Equal(t, passkey.NotAllowedError, passkey.NameOf(err), msg)
+		require.ErrorIs(t, err, ErrDisconnected, msg)
 		assert.False(t, passkey.IsFallback(err), msg)
 		assert.Empty(t, out.Bytes(), "nobody is there to receive a response")
 	}
@@ -653,6 +652,41 @@ func TestPasskeyDisconnect(t *testing.T) {
 	names, err := pt.store.List(t.Context())
 	require.NoError(t, err)
 	assert.Equal(t, []string{"passkeys/example.com/alice"}, names)
+}
+
+func TestPasskeyFromRegularFile(t *testing.T) {
+	pt := newPasskeyTester(t)
+	path := filepath.Join(t.TempDir(), "request.bin")
+	require.NoError(t, os.WriteFile(path, []byte(writeMessageWithLength(passkeyCreate)), 0o600))
+	in, err := os.Open(path)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, in.Close()) })
+
+	var out bytes.Buffer
+	api := New(pt.store, in, &out, semver.MustParse("1.2.3"))
+	api.Confirm = func(ctx context.Context, _ passkey.ConsentRequest) (bool, error) {
+		return true, ctx.Err()
+	}
+
+	require.NoError(t, api.ServeMessage(t.Context()))
+	assert.Contains(t, readAndVerifyMessageLength(t, out.Bytes()), `"entry":"passkeys/example.com/alice"`)
+}
+
+func TestQueryHostOmitsPasskeyEntries(t *testing.T) {
+	pt := newPasskeyTester(t)
+	cfgDir := filepath.Join(os.Getenv("GOPASS_HOMEDIR"), ".config", "gopass")
+	require.NoError(t, os.MkdirAll(cfgDir, 0o700))
+	require.NoError(t, os.WriteFile(filepath.Join(cfgDir, "config"), []byte("[passkey]\n\tprefix = custom/keys\n"), 0o600))
+	require.NotContains(t, pt.send(passkeyCreate), "error")
+
+	for _, name := range []string{"passkeys/login.example.com/bob", "team/Passkeys/login.example.com/shared", "websites/example.com/password"} {
+		require.NoError(t, pt.store.Set(t.Context(), name, newSec(t, "password\n")))
+	}
+
+	// Passkeys at the exact host do not prevent password matches at the parent.
+	assert.JSONEq(t, `["websites/example.com/password"]`, pt.sendRaw(`{"type":"queryHost","host":"login.example.com"}`))
+	assert.JSONEq(t, `["websites/example.com/password"]`, pt.sendRaw(`{"type":"queryHost","host":"example.com"}`))
+	assert.Contains(t, pt.sendRaw(`{"type":"query","query":"example.com"}`), "custom/keys/example.com/alice")
 }
 
 type storeWithSetHook struct {
@@ -699,7 +733,7 @@ func TestPasskeyDisconnectDuringWrite(t *testing.T) {
 			store := storeWithSetHook{pt.store, func(writeCtx context.Context) {
 				hangUp()
 				<-approvalCtx.Done()
-				require.ErrorIs(t, context.Cause(approvalCtx), errDisconnected)
+				require.ErrorIs(t, context.Cause(approvalCtx), ErrDisconnected)
 				require.NoError(t, writeCtx.Err())
 				deadline, bounded := writeCtx.Deadline()
 				assert.True(t, bounded)
@@ -714,8 +748,7 @@ func TestPasskeyDisconnectDuringWrite(t *testing.T) {
 			}
 
 			err := api.ServeMessage(ctx)
-			require.ErrorIs(t, err, context.Canceled)
-			assert.Equal(t, passkey.NotAllowedError, passkey.NameOf(err))
+			require.ErrorIs(t, err, ErrDisconnected)
 			assert.Empty(t, out.Bytes())
 
 			sec, err := pt.store.Get(t.Context(), "passkeys/example.com/alice", "latest")
@@ -883,10 +916,10 @@ func TestPinentryConfirm(t *testing.T) {
 	// The cause is reported, e.g. that the browser gave up.
 	ctx, cancelCause := context.WithCancelCause(t.Context())
 	fake = &fakePinentry{wait: ctx.Done()}
-	cancelCause(errDisconnected)
+	cancelCause(ErrDisconnected)
 
 	_, err = pinentryConfirm(ctx, req)
-	require.ErrorIs(t, err, errDisconnected)
+	require.ErrorIs(t, err, ErrDisconnected)
 
 	// no pinentry
 	newPinentry = func(context.Context, string) (confirmer, error) {

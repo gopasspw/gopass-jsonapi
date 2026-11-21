@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -32,6 +33,7 @@ func scriptedPinentry(t *testing.T, answer string) string {
 	bin := filepath.Join(home, "pinentry")
 
 	script := `#!/bin/sh
+test -z "${GPG_TTY+x}" || exit 1
 echo "OK Pleased to meet you"
 while read -r line; do
 	echo "$line" >> "` + log + `"
@@ -49,7 +51,7 @@ done
 	// the pinentry is looked up in the config of the GnuPG agent
 	t.Setenv("HOME", home)
 	t.Setenv("GOPASS_HOMEDIR", home)
-	t.Setenv("GPG_TTY", "")
+	t.Setenv("GPG_TTY", "/dev/pts/123")
 
 	return log
 }
@@ -78,6 +80,7 @@ func TestPinentryProcess(t *testing.T) {
 	// line breaks are escaped: the question is a single line of the protocol
 	assert.Contains(t, string(told), `SETDESC Sign in to example.com as "alice"?%0A%0APasskey: "passkeys/example.com/alice"%0ARequested by https://login.example.com`+"\n")
 	assert.Contains(t, string(told), "CONFIRM\n")
+	assert.NotContains(t, string(told), "ttyname")
 
 	// cancelled and declined
 	for _, answer := range []string{
@@ -147,11 +150,45 @@ func TestPinentryProcess(t *testing.T) {
 	require.NoError(t, os.MkdirAll(filepath.Join(home, ".gnupg"), 0o700))
 	require.NoError(t, os.WriteFile(filepath.Join(home, ".gnupg", "gpg-agent.conf"), []byte("pinentry-program "+filepath.Join(home, "missing")+"\n"), 0o600))
 	t.Setenv("HOME", home)
+	t.Setenv("PATH", home)
 
 	consent, err = pinentryConfirm(t.Context(), req)
 	require.ErrorIs(t, err, passkey.ErrUnsuitable)
 	assert.Contains(t, err.Error(), "failed to start pinentry")
 	assert.False(t, consent)
+}
+
+func TestPinentryFromGPGConf(t *testing.T) {
+	for _, source := range []string{"components", "libexecdir"} {
+		t.Run(source, func(t *testing.T) {
+			home := t.TempDir()
+			libexec := filepath.Join(home, "libexec with space")
+			bin := filepath.Join(home, "bin")
+			require.NoError(t, os.Mkdir(libexec, 0o700))
+			require.NoError(t, os.Mkdir(bin, 0o700))
+
+			program := filepath.Join(libexec, "pinentry")
+			if source == "components" {
+				program += "+gui"
+			}
+			require.NoError(t, os.WriteFile(program, []byte("#!/bin/sh\necho OK\nwhile read -r line; do echo OK; done\n"), 0o700)) //nolint:gosec
+
+			conf := "#!/bin/sh\n"
+			if source == "components" {
+				conf += fmt.Sprintf("test \"$1\" = --list-components || exit 1\nprintf '%%s\\n' 'gpg:OpenPGP:/usr/bin/gpg' 'pinentry:Passphrase Entry:%s'\n",
+					strings.ReplaceAll(program, ":", "%3A"))
+			} else {
+				conf += fmt.Sprintf("test \"$1\" = --list-dirs && test \"$2\" = libexecdir || exit 1\nprintf '%%s\\n' '%s'\n", libexec)
+			}
+			require.NoError(t, os.WriteFile(filepath.Join(bin, "gpgconf"), []byte(conf), 0o700)) //nolint:gosec
+
+			t.Setenv("HOME", home)
+			t.Setenv("PATH", bin)
+			confirmed, err := pinentryConfirm(t.Context(), passkey.ConsentRequest{RPID: "example.com", Origin: "https://example.com"})
+			require.NoError(t, err)
+			assert.True(t, confirmed)
+		})
+	}
 }
 
 // A browser that gives up on a request closes the connection. The ceremony
@@ -186,7 +223,7 @@ func TestPinentryDisconnect(t *testing.T) {
 		require.FailNow(t, "the ceremony did not end when the browser hung up")
 	}
 
-	require.ErrorIs(t, err, errDisconnected)
+	require.ErrorIs(t, err, ErrDisconnected)
 	assert.False(t, passkey.IsFallback(err))
 
 	buf, rerr := os.ReadFile(pidFile)

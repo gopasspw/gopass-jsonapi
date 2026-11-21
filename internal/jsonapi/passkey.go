@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/gopasspw/gopass/pkg/gopass"
@@ -142,9 +143,9 @@ func (s nativePasskeyStore) Set(ctx context.Context, name string, sec gopass.Byt
 	return s.SecretStore.Set(writeCtx, name, sec) //nolint:wrapcheck
 }
 
-// errDisconnected is the cause of a ceremony that ended because the browser
+// ErrDisconnected is returned when a ceremony ends because the browser
 // closed the connection.
-var errDisconnected = errors.New("the browser closed the connection")
+var ErrDisconnected = errors.New("the browser closed the connection")
 
 // untilDisconnected returns a context that is cancelled when the input ends,
 // i.e. when the browser closes the connection.
@@ -153,21 +154,36 @@ var errDisconnected = errors.New("the browser closed the connection")
 // response. It closes it when nobody waits for the response anymore: when
 // the extension disconnects the port it sent the request through, e.g.
 // because the web page aborted the call, or when the browser shuts the host
-// down. It does not wait long for the host to exit then, and it kills
-// neither the processes the host started nor, if the host runs behind a
-// wrapper script, the host itself. A ceremony that is waiting for the user
-// has to end, and to take its dialog down.
+// down. A ceremony that is waiting for the user has to end and take its
+// dialog down. With redirected regular-file input, EOF is expected and
+// means nothing about whether the output is still being read.
 func (api *API) untilDisconnected(ctx context.Context) (context.Context, context.CancelFunc) {
+	if file, ok := api.Reader.(*os.File); ok {
+		if info, err := file.Stat(); err == nil && info.Mode().IsRegular() {
+			return context.WithCancel(ctx)
+		}
+	}
+
 	ctx, cancel := context.WithCancelCause(ctx)
 
 	go func() {
 		// The host answers a single request. Anything that arrives after
 		// it is not read by anyone and can be dropped.
 		_, _ = io.Copy(io.Discard, api.Reader)
-		cancel(errDisconnected)
+		cancel(ErrDisconnected)
 	}()
 
 	return ctx, func() { cancel(nil) }
+}
+
+// ceremonyError preserves the disconnect cause even if the authenticator
+// reports only context.Canceled or returned successfully just before EOF.
+func ceremonyError(ctx context.Context, err error) error {
+	if errors.Is(context.Cause(ctx), ErrDisconnected) {
+		return ErrDisconnected
+	}
+
+	return err
 }
 
 // respondPasskeyCreate performs a registration ceremony: it creates and
@@ -182,7 +198,7 @@ func (api *API) respondPasskeyCreate(ctx context.Context, msgBytes []byte) error
 	defer cancel()
 
 	rsp, entry, err := api.authenticator(ctx).Register(ctx, message.origin(), message.Options)
-	if err != nil {
+	if err := ceremonyError(ctx, err); err != nil {
 		return err
 	}
 
@@ -247,7 +263,7 @@ func (api *API) respondPasskeyGet(ctx context.Context, msgBytes []byte) error {
 	defer cancel()
 
 	rsp, entry, err := api.authenticator(ctx).Authenticate(ctx, message.origin(), message.Options, message.CredentialID)
-	if err != nil {
+	if err := ceremonyError(ctx, err); err != nil {
 		return err
 	}
 

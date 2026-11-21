@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -70,6 +71,11 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to list store: %w", err)
 	}
+
+	// Passkey entries normally have no password. Filter them before
+	// deciding whether to try the parent domain for password suggestions.
+	passkeys := passkey.NewStore(ctx, api.Store)
+	l = slices.DeleteFunc(slices.Clone(l), passkeys.IsPasskeyName)
 
 	choices := make([]string, 0, 10)
 

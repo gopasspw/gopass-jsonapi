@@ -6,7 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -38,17 +42,41 @@ type confirmer interface {
 // is taken down when the context is done. It is a variable so that tests do
 // not open dialogs.
 var newPinentry = func(ctx context.Context, desc string) (confirmer, error) {
+	dialog, err := startPinentry(ctx, desc, pinentry.WithBinaryNameFromGnuPGAgentConf())
+	if err == nil || (!errors.Is(err, exec.ErrNotFound) && !errors.Is(err, os.ErrNotExist)) {
+		return dialog, err
+	}
+
+	// With some GnuPG distributions, including Gpg4win, pinentry is
+	// installed alongside GnuPG but is not on PATH.
+	if name := gpgconfPinentry(ctx); name != "" {
+		return startPinentry(ctx, desc, pinentry.WithBinaryName(name))
+	}
+
+	return nil, err
+}
+
+func startPinentry(ctx context.Context, desc string, binary pinentry.ClientOption) (confirmer, error) {
 	proc := &pinentryProcess{
 		done: ctx.Done(),
 		command: func(name string, args []string) *exec.Cmd {
-			return exec.CommandContext(ctx, name, args...)
+			cmd := exec.CommandContext(ctx, name, args...)
+			// Do not let a terminal pinentry use the browser's inherited
+			// GPG_TTY or pick up its controlling terminal.
+			cmd.Env = slices.DeleteFunc(cmd.Environ(), func(v string) bool {
+				key, _, _ := strings.Cut(v, "=")
+
+				return strings.EqualFold(key, "GPG_TTY")
+			})
+			detachPinentryTTY(cmd)
+
+			return cmd
 		},
 	}
 
 	client, err := pinentry.NewClient(
-		pinentry.WithBinaryNameFromGnuPGAgentConf(),
+		binary,
 		pinentry.WithProcess(proc),
-		pinentry.WithGPGTTY(),
 		pinentry.WithTitle("gopass"),
 		pinentry.WithDesc(desc),
 		pinentry.WithOK("Confirm"),
@@ -61,6 +89,47 @@ var newPinentry = func(ctx context.Context, desc string) (confirmer, error) {
 	}
 
 	return &pinentryDialog{client: client, proc: proc}, nil
+}
+
+func gpgconfPinentry(ctx context.Context) string {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	read := func(args ...string) ([]byte, error) {
+		cmd := exec.CommandContext(ctx, "gpgconf", args...)
+		cmd.WaitDelay = pinentryGrace
+
+		return cmd.Output()
+	}
+
+	out, err := read("--list-components")
+	if err == nil {
+		for line := range strings.Lines(string(out)) {
+			fields := strings.SplitN(strings.TrimSpace(line), ":", 3)
+			if len(fields) != 3 || fields[0] != "pinentry" {
+				continue
+			}
+
+			// gpgconf percent-escapes fields (including drive-letter
+			// colons on Windows). A plus sign in a path stays a plus.
+			name, err := url.PathUnescape(fields[2])
+			if err == nil && filepath.IsAbs(name) {
+				if bin, err := exec.LookPath(name); err == nil {
+					return bin
+				}
+			}
+		}
+	}
+
+	// Older versions do not list pinentry as a component.
+	out, err = read("--list-dirs", "libexecdir")
+	if dir := strings.TrimSpace(string(out)); err == nil && filepath.IsAbs(dir) {
+		if bin, err := exec.LookPath(filepath.Join(dir, "pinentry")); err == nil {
+			return bin
+		}
+	}
+
+	return ""
 }
 
 // pinentryDialog is a pinentry that is showing a question.
@@ -201,6 +270,10 @@ func pinentryConfirm(ctx context.Context, req passkey.ConsentRequest) (bool, err
 
 	p, err := newPinentry(ctx, desc)
 	if err != nil {
+		if ctx.Err() != nil {
+			return false, fmt.Errorf("no answer: %w", context.Cause(ctx))
+		}
+
 		return false, cannotAsk(fmt.Errorf("failed to start pinentry: %w", err))
 	}
 

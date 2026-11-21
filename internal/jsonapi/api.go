@@ -33,7 +33,9 @@ func New(s gopass.Store, r io.Reader, w io.Writer, v semver.Version) *API {
 	}
 }
 
-// ServeMessage processes a single message.
+// ServeMessage processes a single message. For passkey creation and
+// authentication on streaming input, it consumes any remaining input to
+// detect browser disconnects. Do not call it in a loop on that input.
 func (api *API) ServeMessage(ctx context.Context) error {
 	ctx = ctxutil.WithHidden(ctx, true)
 	msg, err := readRequest(api.Reader)
