@@ -14,6 +14,7 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass"
 	"github.com/gopasspw/gopass/pkg/gopass/secrets"
 	"github.com/gopasspw/gopass/pkg/otp"
+	"github.com/gopasspw/gopass/pkg/passkey"
 	"github.com/gopasspw/gopass/pkg/pwgen"
 	potp "github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -48,6 +49,12 @@ func (api *API) sendResponse(ctx context.Context, buf []byte) error {
 		return api.respondCopyToClipboard(ctx, buf)
 	case "getVersion":
 		return api.respondGetVersion()
+	case "passkeyCreate":
+		return api.respondPasskeyCreate(ctx, buf)
+	case "passkeyQuery":
+		return api.respondPasskeyQuery(ctx, buf)
+	case "passkeyGet":
+		return api.respondPasskeyGet(ctx, buf)
 	default:
 		return fmt.Errorf("unknown message of type %s", msg.Type)
 	}
@@ -156,6 +163,12 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	for _, k := range keys {
 		// we ignore the otpauth key
 		if k == "otpauth" {
+			continue
+		}
+		// The private key of a passkey never leaves the store. Passkeys are
+		// only used through the passkey requests, with the consent of the
+		// user.
+		if k == passkey.SecretKey {
 			continue
 		}
 		v, ok := sec.Get(k)
@@ -270,6 +283,10 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")
 	if err != nil {
 		return fmt.Errorf("failed to get secret: %w", err)
+	}
+
+	if message.Key == passkey.SecretKey {
+		return fmt.Errorf("passkeys can not be copied")
 	}
 
 	var val string

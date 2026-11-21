@@ -62,6 +62,8 @@ The browser plugin communicates with gopass-jsonapi via JSON messages.
 To allow the plugin to interact with gopass-jsonapi,
 a [native messaging manifest](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) must be installed for each browser.
 
+`gopass-jsonapi` can also create passkeys, keep them in the password store and sign in with them. A browser plugin needs to forward the WebAuthn requests of web pages for this. See the [API documentation](./docs/api.md#passkeys) and the documentation of the [`gopass passkey` command](https://github.com/gopasspw/gopass/blob/master/docs/commands/passkey.md).
+
 This native extension and the gopassbrigde plugin currently only support the *Connectionless messaging* with [`runtime.sendNativeMessage`](https://github.com/gopasspw/gopassbridge/blob/master/web-extension/generic.js#L54), i.e.
 the `gopass-jsonapi` will be started for every single message from the brower plugin.
 
