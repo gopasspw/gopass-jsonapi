@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -71,7 +70,7 @@ func (s *jsonapiCLI) setup(ctx context.Context, c *cli.Command) error {
 		return fmt.Errorf("failed to create wrapper path: %w", err)
 	}
 
-	if err := ioutil.WriteFile(wrapperPath, wrap, 0o755); err != nil {
+	if err := os.WriteFile(wrapperPath, wrap, 0o755); err != nil {
 		return fmt.Errorf("failed to write wrapper script: %w", err)
 	}
 
@@ -79,7 +78,7 @@ func (s *jsonapiCLI) setup(ctx context.Context, c *cli.Command) error {
 		return fmt.Errorf("failed to create manifest path: %w", err)
 	}
 
-	if err := ioutil.WriteFile(manifestPath, mf, 0o644); err != nil {
+	if err := os.WriteFile(manifestPath, mf, 0o644); err != nil {
 		return fmt.Errorf("failed to write manifest file: %w", err)
 	}
 
