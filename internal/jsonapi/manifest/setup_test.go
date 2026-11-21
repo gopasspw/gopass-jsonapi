@@ -56,7 +56,7 @@ func TestValidBrowsers(t *testing.T) {
 	case "darwin": // macOS
 		validBrowsers = []string{"arc", "brave", "chrome", "chromium", "firefox", "iridium", "slimjet", "vivaldi"}
 	case "windows": // Windows
-		validBrowsers = []string{"chrome", "chromium", "firefox"}
+		validBrowsers = []string{"brave", "chrome", "chromium", "firefox"}
 	case "linux": // Linux
 		validBrowsers = []string{"brave", "chrome", "chromium", "firefox", "floorp", "iridium", "slimjet", "vivaldi"}
 	case "freebsd": // FreeBSD
