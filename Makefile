@@ -26,6 +26,7 @@ all: build
 build: $(GOPASS_OUTPUT)
 gha-linux: sysinfo crosscompile build test codequality
 gha-osx: sysinfo build test
+gha-windows: sysinfo build test-win
 
 sysinfo:
 	@echo ">> SYSTEM INFORMATION"
@@ -82,6 +83,11 @@ test: $(GOPASS_OUTPUT)
 	    echo -n "     ";\
 		$(GO) test -test.short -run '(Test|Example)' $(BUILDFLAGS) $(TESTFLAGS) $(pkg) || exit 1;)
 
+test-win: $(GOPASS_OUTPUT)
+	@echo ">> TEST, \"fast-mode-win\": race detector off"
+	@$(foreach pkg, $(PKGS),\
+		$(GO) test -test.short -run '(Test|Example)' $(pkg) || exit 1;)
+
 crosscompile:
 	@echo -n ">> CROSSCOMPILE linux/amd64"
 	@GOOS=linux GOARCH=amd64 $(GO) build -o $(GOPASS_OUTPUT)-linux-amd64
@@ -105,7 +111,7 @@ codequality:
 
 	@echo -n "     GOLANGCI-LINT "
 	@which golangci-lint > /dev/null; if [ $$? -ne 0 ]; then \
-		$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.1; \
+		$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0; \
 	fi
 	@golangci-lint run --max-issues-per-linter 0 --max-same-issues 0 || exit 1
 

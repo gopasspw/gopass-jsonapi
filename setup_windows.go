@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -82,7 +81,7 @@ func (s *jsonapiCLI) setup(ctx context.Context, c *cli.Command) error {
 		return fmt.Errorf("failed to create manifest path: %s", err)
 	}
 
-	if err := ioutil.WriteFile(manifestPath, mf, 0o644); err != nil {
+	if err := os.WriteFile(manifestPath, mf, 0o644); err != nil {
 		return fmt.Errorf("failed to write manifest file: %s", err)
 	}
 
