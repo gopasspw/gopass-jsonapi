@@ -6,7 +6,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/blang/semver/v4 v4.0.0
 	github.com/fatih/color v1.19.0
-	github.com/gopasspw/gopass v1.17.5
+	github.com/gopasspw/gopass v1.17.6-0.20261123175825-624ca048c8f1
 	github.com/pquerna/otp v1.5.0
 	github.com/stretchr/testify v1.12.1
 	github.com/twpayne/go-pinentry/v4 v4.0.1
@@ -70,7 +70,3 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
-
-// Temporary: the passkey API of gopass is not released yet. Remove this with
-// the gopass release that includes https://github.com/gopasspw/gopass/pull/3709
-replace github.com/gopasspw/gopass => github.com/pedro757/gopass v1.17.5-0.20261121172946-51baa0f69fe1

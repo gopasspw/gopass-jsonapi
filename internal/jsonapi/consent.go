@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -331,10 +332,10 @@ func consentQuestion(req passkey.ConsentRequest) (string, error) {
 	case passkey.OperationRegister:
 		q := fmt.Sprintf("Create a passkey for %s at %s?", user, req.RPID)
 		if req.Entry != "" {
-			q = fmt.Sprintf("Create another passkey for %s at %s?\n\nThe account already has one in %s.", user, req.RPID, displayName(req.Entry))
+			q = fmt.Sprintf("Create another passkey for %s at %s? The account already has one in this entry.", user, req.RPID)
 		}
 
-		return q + "\n\n" + from, nil
+		return fmt.Sprintf("%s\n\nSave to: %s\n\n%s", q, strconv.Quote(req.Destination), from), nil
 	case passkey.OperationAuthenticate:
 		return fmt.Sprintf("Sign in to %s as %s?\n\nPasskey: %s\n%s", req.RPID, user, displayName(req.Entry), from), nil
 	case passkey.OperationDisclose:

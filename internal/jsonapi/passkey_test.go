@@ -167,6 +167,7 @@ func TestPasskeyCeremonies(t *testing.T) {
 		Origin:          "https://login.example.com",
 		UserName:        "alice",
 		UserDisplayName: "Alice",
+		Destination:     "passkeys/example.com/alice",
 	}, pt.asked[0])
 
 	reg, ok := rsp["credential"].(map[string]any)
@@ -272,6 +273,63 @@ func TestPasskeyCeremonies(t *testing.T) {
 		out, err := json.Marshal(pt.send(msg))
 		require.NoError(t, err)
 		assert.NotContains(t, string(out), privateKey[:24])
+	}
+}
+
+type scopedPasskeyTestStore struct {
+	*apimock.MockAPI
+	sameScope bool
+	alias     string
+}
+
+func (s scopedPasskeyTestStore) SameRecipientScope(context.Context, string, string) bool {
+	return s.sameScope
+}
+
+func (s scopedPasskeyTestStore) Exists(ctx context.Context, name string) bool {
+	return name == s.alias || s.MockAPI.Exists(ctx, name)
+}
+
+func TestPasskeyRegistrationDestination(t *testing.T) {
+	const (
+		canonical = "passkeys/example.com/alice"
+		existing  = "passkeys/example.com/old-alice"
+	)
+	for _, tc := range []struct {
+		name      string
+		sameScope bool
+		alias     string
+		want      string
+		wantEntry string
+	}{
+		{name: "same scope", sameScope: true, want: existing, wantEntry: existing},
+		{name: "different scope", want: canonical},
+		{name: "unlisted alias", alias: canonical},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			pt := newPasskeyTester(t)
+			store := apimock.New()
+			pt.store = store
+			require.NotContains(t, pt.send(passkeyCreate), "error")
+			require.NoError(t, store.Rename(t.Context(), canonical, existing))
+			pt.store = scopedPasskeyTestStore{MockAPI: store, sameScope: tc.sameScope, alias: tc.alias}
+
+			rsp := pt.send(passkeyCreate)
+			if tc.want == "" {
+				assert.Equal(t, "UnknownError", rsp["error_name"])
+				assert.Contains(t, rsp["error"], "aliases an existing secret")
+				assert.Len(t, pt.asked, 1, "an unsafe destination must be rejected before prompting")
+				assert.False(t, store.Exists(t.Context(), canonical))
+
+				return
+			}
+
+			require.NotContains(t, rsp, "error")
+			assert.Equal(t, tc.want, rsp["entry"])
+			require.Len(t, pt.asked, 2)
+			assert.Equal(t, tc.want, pt.asked[1].Destination)
+			assert.Equal(t, tc.wantEntry, pt.asked[1].Entry)
+		})
 	}
 }
 
@@ -945,20 +1003,30 @@ func TestConsentQuestion(t *testing.T) {
 		Origin:          "https://login.example.com",
 		UserName:        "alice",
 		UserDisplayName: "Alice",
+		Destination:     "passkeys/example.com/alice",
 	}
 
 	// The name a site gives itself is not shown: it proves nothing.
 	q, err := consentQuestion(req)
 	require.NoError(t, err)
-	assert.Equal(t, "Create a passkey for \"alice\" at example.com?\n\nRequested by https://login.example.com", q)
+	assert.Equal(t, "Create a passkey for \"alice\" at example.com?\n\n"+
+		"Save to: \"passkeys/example.com/alice\"\n\n"+
+		"Requested by https://login.example.com", q)
 
-	req.Entry = "passkeys/example.com/alice"
+	req.Entry = req.Destination
 	req.TopOrigin = "https://shop.example"
 	q, err = consentQuestion(req)
 	require.NoError(t, err)
-	assert.Equal(t, "Create another passkey for \"alice\" at example.com?\n\n"+
-		"The account already has one in \"passkeys/example.com/alice\".\n\n"+
+	assert.Equal(t, "Create another passkey for \"alice\" at example.com? The account already has one in this entry.\n\n"+
+		"Save to: \"passkeys/example.com/alice\"\n\n"+
 		"Requested by https://login.example.com, embedded in https://shop.example", q)
+
+	// The full destination is visible, but it cannot add lines to the prompt.
+	longPath := "passkeys/example.com/" + strings.Repeat("a", 80)
+	req.Destination = longPath + "\n"
+	q, err = consentQuestion(req)
+	require.NoError(t, err)
+	assert.Contains(t, q, `Save to: "`+longPath+`\n"`)
 
 	req.Operation = passkey.OperationDisclose
 	q, err = consentQuestion(req)

@@ -77,6 +77,8 @@ github.com/gopasspw/clipboard v0.0.6-0.20261117050150-4c7f24252a9a h1:S4pXxDVNDf
 github.com/gopasspw/clipboard v0.0.6-0.20261117050150-4c7f24252a9a/go.mod h1:i0cShr7JEbOXZ/iKM5RyfBLbu1FPzouO8BTCJy0uHy8=
 github.com/gopasspw/gitconfig v0.0.5 h1:0ECu5VD0ZsvYeWEbaI2nB30k2dDK2CWUaGL+CGCyRPQ=
 github.com/gopasspw/gitconfig v0.0.5/go.mod h1:W5AHsZgCbBRsc8TnElO82GYflOz/l2dIndncymoCv+A=
+github.com/gopasspw/gopass v1.17.6-0.20261123175825-624ca048c8f1 h1:Z/8Gi7cldlw5Z6oqRdiQXgdoesRt6w/zj/GYN7r9UdQ=
+github.com/gopasspw/gopass v1.17.6-0.20261123175825-624ca048c8f1/go.mod h1:zCRlYcZQ/fc6try1iaSL5q3bwO6TQscO4YbPvZ3osqM=
 github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
 github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUqJM=
@@ -116,8 +118,6 @@ github.com/muesli/crunchy v0.4.0 h1:qdiml8gywULHBsztiSAf6rrE6EyuNasNKZ104mAaahM=
 github.com/muesli/crunchy v0.4.0/go.mod h1:9k4x6xdSbb7WwtAVy0iDjaiDjIk6Wa5AgUIqp+HqOpU=
 github.com/onsi/gomega v1.34.1 h1:EUMJIKUjM8sKjYbtxQI9A4z2o+rruxnzNvpknOXie6k=
 github.com/onsi/gomega v1.34.1/go.mod h1:kU1QgUvBDLXBJq618Xvm2LUX6rSAfRaFRTcdOeDLwwY=
-github.com/pedro757/gopass v1.17.5-0.20261121172946-51baa0f69fe1 h1:uCegRzegSHS4jUVSTBs2hLdFZ92ybR2MFRdqPTWdM3w=
-github.com/pedro757/gopass v1.17.5-0.20261121172946-51baa0f69fe1/go.mod h1:PakgTJbqR8teK7duX6w8to8RAFkWiHrAgHHVCzRyYZ0=
 github.com/pjbgf/sha1cd v0.7.0 h1:ZRNPKHj+gfkLBf0KJv/p1Hmz+7bqCT5o311YX0nq+DA=
 github.com/pjbgf/sha1cd v0.7.0/go.mod h1:pKR5Li+qTCo+ebqITZfwPlJGoCFCvSO00qxjbNtTUFQ=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

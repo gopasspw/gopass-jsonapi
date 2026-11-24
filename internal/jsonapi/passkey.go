@@ -120,7 +120,7 @@ func (api *API) authenticator(ctx context.Context) *passkey.Authenticator {
 		consent = passkey.ConsentByConfirmation(api.Confirm)
 	}
 
-	return passkey.NewAuthenticator(passkey.NewStore(ctx, nativePasskeyStore{api.Store}), consent)
+	return passkey.NewAuthenticator(passkey.NewStore(ctx, newNativePasskeyStore(api.Store)), consent)
 }
 
 const passkeyWriteTimeout = 2 * time.Minute
@@ -130,6 +130,27 @@ const passkeyWriteTimeout = 2 * time.Minute
 // in the native host. Cancelling partway through could leave it uncommitted.
 type nativePasskeyStore struct {
 	passkey.SecretStore
+}
+
+// passkeyStoreScope is the optional part of passkey.SecretStore used by
+// passkey.NewStore for recipient scope and path alias checks.
+type passkeyStoreScope interface {
+	SameRecipientScope(ctx context.Context, a, b string) bool
+	Exists(ctx context.Context, name string) bool
+}
+
+func newNativePasskeyStore(store passkey.SecretStore) passkey.SecretStore {
+	// Preserve the optional checks without claiming support on stores that
+	// do not implement them. Both wrappers use the same Set deadline.
+	native := nativePasskeyStore{store}
+	if scope, ok := store.(passkeyStoreScope); ok {
+		return struct {
+			nativePasskeyStore
+			passkeyStoreScope
+		}{native, scope}
+	}
+
+	return native
 }
 
 func (s nativePasskeyStore) Set(ctx context.Context, name string, sec gopass.Byter) error {

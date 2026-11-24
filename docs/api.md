@@ -162,7 +162,7 @@ A confirmation shows that the user is present. It does not verify who the user i
 
 Creates a passkey, stores it and returns the response for the relying party. This answers `navigator.credentials.create()`.
 
-A passkey the account already has is kept. The response is only sent once the new passkey is stored.
+A passkey the account already has is kept. The consent dialog shows the entry where the new passkey will be stored. The response is only sent once the new passkey is stored.
 
 #### Request
 
