@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/gopasspw/gopass/pkg/gopass/api"
 	"github.com/urfave/cli/v3"
@@ -22,10 +23,11 @@ var version string
 func main() {
 	ctx := context.Background()
 
-	// trap Ctrl+C and call cancel on the context
+	// trap Ctrl+C, and the SIGTERM a browser stops a native messaging host
+	// with, and call cancel on the context
 	ctx, cancel := context.WithCancel(ctx)
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	defer func() {
 		signal.Stop(sigChan)
 		cancel()

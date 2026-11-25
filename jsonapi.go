@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 
@@ -28,9 +29,15 @@ func (s *jsonapiCLI) listen(ctx context.Context, c *cli.Command) error {
 	}
 
 	api := jsonapi.New(s.gp, stdin, stdout, version)
-	if err := api.ServeMessage(ctx); err != nil {
-		return api.SendErrorResponse(err)
+
+	return serveNativeMessage(ctx, api)
+}
+
+func serveNativeMessage(ctx context.Context, api *jsonapi.API) error {
+	err := api.ServeMessage(ctx)
+	if err == nil || errors.Is(err, jsonapi.ErrDisconnected) {
+		return nil
 	}
 
-	return nil
+	return api.SendErrorResponse(err)
 }

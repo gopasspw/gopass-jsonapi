@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/gopasspw/gopass/pkg/gopass"
 	"github.com/gopasspw/gopass/pkg/gopass/secrets"
 	"github.com/gopasspw/gopass/pkg/otp"
+	"github.com/gopasspw/gopass/pkg/passkey"
 	"github.com/gopasspw/gopass/pkg/pwgen"
 	potp "github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -48,6 +50,12 @@ func (api *API) sendResponse(ctx context.Context, buf []byte) error {
 		return api.respondCopyToClipboard(ctx, buf)
 	case "getVersion":
 		return api.respondGetVersion()
+	case "passkeyCreate":
+		return api.respondPasskeyCreate(ctx, buf)
+	case "passkeyQuery":
+		return api.respondPasskeyQuery(ctx, buf)
+	case "passkeyGet":
+		return api.respondPasskeyGet(ctx, buf)
 	default:
 		return fmt.Errorf("unknown message of type %s", msg.Type)
 	}
@@ -63,6 +71,11 @@ func (api *API) respondHostQuery(ctx context.Context, msgBytes []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to list store: %w", err)
 	}
+
+	// Passkey entries normally have no password. Filter them before
+	// deciding whether to try the parent domain for password suggestions.
+	passkeys := passkey.NewStore(ctx, api.Store)
+	l = slices.DeleteFunc(slices.Clone(l), passkeys.IsPasskeyName)
 
 	choices := make([]string, 0, 10)
 
@@ -156,6 +169,12 @@ func (api *API) respondGetData(ctx context.Context, msgBytes []byte) error {
 	for _, k := range keys {
 		// we ignore the otpauth key
 		if k == "otpauth" {
+			continue
+		}
+		// The private key of a passkey never leaves the store. Passkeys are
+		// only used through the passkey requests, with the consent of the
+		// user.
+		if k == passkey.SecretKey {
 			continue
 		}
 		v, ok := sec.Get(k)
@@ -265,6 +284,10 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 	var message copyToClipboard
 	if err := json.Unmarshal(msgBytes, &message); err != nil {
 		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
+	}
+
+	if message.Key == passkey.SecretKey {
+		return fmt.Errorf("passkeys can not be copied")
 	}
 
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")

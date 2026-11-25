@@ -6,9 +6,10 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/blang/semver/v4 v4.0.0
 	github.com/fatih/color v1.19.0
-	github.com/gopasspw/gopass v1.17.5
+	github.com/gopasspw/gopass v1.17.6-0.20261123175825-624ca048c8f1
 	github.com/pquerna/otp v1.5.0
 	github.com/stretchr/testify v1.12.1
+	github.com/twpayne/go-pinentry/v4 v4.0.1
 	github.com/urfave/cli/v3 v3.14.0
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f
 	golang.org/x/net v0.62.0
@@ -58,7 +59,6 @@ require (
 	github.com/pjbgf/sha1cd v0.7.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
-	github.com/twpayne/go-pinentry/v4 v4.0.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect

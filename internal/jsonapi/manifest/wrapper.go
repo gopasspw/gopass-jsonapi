@@ -30,9 +30,7 @@ fi
 
 export PATH="$PATH:{{ .Path }}"
 
-{{ .Gopass }} listen
-
-exit $?
+exec {{ .Gopass }} listen
 `
 
 var isDirFn func(string) bool = fsutil.IsDir
