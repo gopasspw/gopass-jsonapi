@@ -286,13 +286,13 @@ func (api *API) respondCopyToClipboard(ctx context.Context, msgBytes []byte) err
 		return fmt.Errorf("failed to unmarshal JSON message: %w", err)
 	}
 
+	if message.Key == passkey.SecretKey {
+		return fmt.Errorf("passkeys can not be copied")
+	}
+
 	sec, err := api.Store.Get(ctx, message.Entry, "latest")
 	if err != nil {
 		return fmt.Errorf("failed to get secret: %w", err)
-	}
-
-	if message.Key == passkey.SecretKey {
-		return fmt.Errorf("passkeys can not be copied")
 	}
 
 	var val string

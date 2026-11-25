@@ -562,6 +562,10 @@ func TestPasskeyIsNotExposedByOtherRequests(t *testing.T) {
 	rsp = pt.send(`{"type": "copyToClipboard", "entry": "passkeys/example.com/alice", "key": "passkey"}`)
 	assert.Contains(t, rsp["error"], "passkeys can not be copied")
 
+	// Reject the key before looking up the entry, even if it does not exist.
+	rsp = pt.send(`{"type": "copyToClipboard", "entry": "passkeys/example.com/missing", "key": "passkey"}`)
+	assert.Equal(t, "passkeys can not be copied", rsp["error"])
+
 	rsp = pt.send(`{"type": "getLogin", "entry": "passkeys/example.com/alice"}`)
 	assert.Equal(t, map[string]any{"username": "alice", "password": "hunter2"}, rsp)
 
